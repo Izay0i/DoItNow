@@ -1,37 +1,60 @@
-import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
-import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
+import React, { useState } from 'react';
+import { View, StatusBar, FlatList } from 'react-native';
 
-export default App = () => {
+import styled from 'styled-components';
+import AddInput from './assets/components/AddInput';
+import Empty from './assets/components/Empty';
+import Header from './assets/components/Header';
+import TodoList from './assets/components/TodoList';
+
+export default function App() {
+  const [data, setData] = useState([]);
+  
+  const submitHandler = (value) => {
+    setData((prevTodo) => {
+      return [
+        {
+          value: value,
+          key: Math.random().toString(),
+        },
+        ...prevTodo,
+      ];
+    });
+  };
+
+  const deleteItem = (key) => {
+    setData((prevTodo) => {
+      return prevTodo.filter((todo) => todo.key != key);
+    });
+  };
+
   return (
-    <View style={styles.container}>
-      <CalendarList 
-        onVisibleMonthsChange = { (months) => { console.log('Now these months are visible.', months); } }
-        pastScrollRange = { 50 }
-        futureScrollRange = { 50 }
-        scrollEnabled = { true }
-        showScrollIndicator = { true }
-      />
-    </View>
-  );
-};
+    <ComponentContainer>
+      <View>
+        <StatusBar barStyle='light-content' backgroundColor='midnightblue'></StatusBar>
+      </View>
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
-    backgroundColor: "#eaeaea"
-  },
-  title: {
-    marginTop: 16,
-    paddingVertical: 8,
-    borderWidth: 4,
-    borderColor: "#20232a",
-    borderRadius: 6,
-    backgroundColor: "#61dafb",
-    color: "#20232a",
-    textAlign: "center",
-    fontSize: 30,
-    fontWeight: "bold"
-  }
-});
+      <View>
+        <FlatList 
+          data={data} 
+          ListHeaderComponent={() => <Header></Header>} 
+          ListEmptyComponent={() => <Empty></Empty>}
+          keyExtractor={(item) => item.key} 
+          renderItem={({ item }) => (<TodoList item={item} 
+          deleteItem={deleteItem}></TodoList>)}>
+        </FlatList>
+        <View>
+          <AddInput submitHandler={submitHandler}></AddInput>
+        </View>
+      </View>
+    </ComponentContainer>
+  );
+}
+
+const ComponentContainer = styled.View`
+  background-color: midnightblue;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+`;

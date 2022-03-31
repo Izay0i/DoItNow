@@ -3,6 +3,7 @@
     "name": "DoItNow",
     "slug": "DoItNow",
     "version": "1.0.0",
+    "scheme": "exp",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "splash": {
@@ -20,6 +21,7 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.doitnow",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"

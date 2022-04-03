@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Button } from 'react-native';
+import { View, Text, StyleSheet, Button, FlatList, StatusBar } from 'react-native';
 
 import { useFonts } from 'expo-font';
 import AppLoading from 'expo-app-loading';
 
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
+
+import TaskList from './assets/components/TaskList';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -18,6 +20,21 @@ export default function App() {
   const [accessToken, setAccessToken] = useState();
   const [userInfo, setUserInfo] = useState();
   const [message, setMessage] = useState();
+
+  const [tasks, setTasks] = useState([
+    {
+      id: '1',
+      title: 'First task',
+    },
+    {
+      id: '2',
+      title: 'Second task',
+    },
+    {
+      id: '3',
+      title: 'Third task',
+    }
+  ]);
 
   const [request, response, promptAsync] = Google.useAuthRequest({
     androidClientId: '381369859941-4s3bblmr6usua706k36l5mli5qfqdp9h.apps.googleusercontent.com',
@@ -40,6 +57,8 @@ export default function App() {
     userInfoResponse.json().then(data => {
       setUserInfo(data);
     });
+
+    console.log(message);
   }
 
   function showUserInfo() {
@@ -52,18 +71,37 @@ export default function App() {
     }
   }
 
+  function addTask() {
+    let id = parseInt(tasks[tasks.length - 1].id, 10) + 1;
+
+    const task = {
+      id: id.toString(),
+      title: 'Example task',
+    };
+              
+    let newTaskList = [...tasks, task];
+    setTasks(newTaskList);
+  }
+
   if (fontsLoaded) {
     return (
-      <View style = {styles.container}>
-        {showUserInfo()}
+      <View style={styles.container}>
+        <Text style={styles.title}>HOME</Text>
 
-        <Text style={styles.title}>Hello world!</Text>
+        <TaskList taskList={tasks}></TaskList>
 
-        <Button 
-        title={accessToken ? 'Get user data' : 'Login'} 
-        onPress={accessToken ? getUserData: () => {
-          promptAsync({useProxy: true, showInRecents: true});
-        }}></Button>
+        <View style={styles.buttonsContainer}>
+          <Button title='Add task' onPress={addTask} color='purple'></Button>
+
+          {showUserInfo()}
+
+          <Button 
+          title={accessToken ? 'Get user data' : 'Sync'} 
+          onPress={accessToken ? getUserData: () => {
+            promptAsync({useProxy: true, showInRecents: true});
+          }} 
+          color='purple'></Button>
+        </View>
       </View>
     );
   }
@@ -77,10 +115,16 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
+    justifyContent: 'space-between',
+    paddingTop: StatusBar.currentHeight,
     backgroundColor: 'white',
+  },
+  buttonsContainer: {
+    flex: 0.1,
+    flexDirection: 'row-reverse',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    padding: 20,
   },
   title: {
     marginTop: 16,

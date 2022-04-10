@@ -1,15 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Button, FlatList, StatusBar } from 'react-native';
+import React from 'react';
+
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+
+import 'react-native-gesture-handler';
 
 import { useFonts } from 'expo-font';
 import AppLoading from 'expo-app-loading';
 
-import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
+import * as Notifications from 'expo-notifications';
 
-import TaskList from './assets/components/TaskList';
+import MainScreen from './assets/screens/MainScreen';
+import TaskEditorScreen from './assets/screens/TaskEditorScreen';
 
 WebBrowser.maybeCompleteAuthSession();
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  })
+});
+
+const Stack = createStackNavigator();
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -17,92 +32,14 @@ export default function App() {
     'poppins-regular': require('./assets/fonts/poppins-regular.ttf'),
   });
 
-  const [accessToken, setAccessToken] = useState();
-  const [userInfo, setUserInfo] = useState();
-  const [message, setMessage] = useState();
-
-  const [tasks, setTasks] = useState([
-    {
-      id: '1',
-      title: 'First task',
-    },
-    {
-      id: '2',
-      title: 'Second task',
-    },
-    {
-      id: '3',
-      title: 'Third task',
-    }
-  ]);
-
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    androidClientId: '381369859941-4s3bblmr6usua706k36l5mli5qfqdp9h.apps.googleusercontent.com',
-    expoClientId: '381369859941-23i5j8skkqvrgbj7339gf2i692i7o9ln.apps.googleusercontent.com',
-  });
-
-  useEffect(() => {
-    setMessage(JSON.stringify(response));
-
-    if (response?.type == 'success') {
-      setAccessToken(response.authentication.accessToken);
-    }
-  }, [response]);
-
-  async function getUserData() {
-    let userInfoResponse = await fetch('https://www.googleapis.com/userinfo/v2/me', {
-      headers: { Authorization: `Bearer ${accessToken}` }
-    });
-
-    userInfoResponse.json().then(data => {
-      setUserInfo(data);
-    });
-
-    console.log(message);
-  }
-
-  function showUserInfo() {
-    if (userInfo) {
-      return (
-        <View>
-          <Text style={styles.title}>Welcome {userInfo.name}!</Text>
-        </View>
-      );
-    }
-  }
-
-  function addTask() {
-    let id = parseInt(tasks[tasks.length - 1].id, 10) + 1;
-
-    const task = {
-      id: id.toString(),
-      title: 'Example task',
-    };
-              
-    let newTaskList = [...tasks, task];
-    setTasks(newTaskList);
-  }
-
   if (fontsLoaded) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.title}>HOME</Text>
-
-        <TaskList taskList={tasks}></TaskList>
-
-        <View style={styles.buttonsContainer}>
-          <Button title='Add task' onPress={addTask} color='purple'></Button>
-
-          {showUserInfo()}
-
-          <Button 
-          title={accessToken ? 'Get user data' : 'Sync'} 
-          onPress={accessToken ? getUserData: () => {
-            promptAsync({useProxy: true, showInRecents: true});
-          }} 
-          color='purple'></Button>
-        </View>
-      </View>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName='Main'>
+          <Stack.Screen name='Main' component={MainScreen} options={{ title: 'Home' }}></Stack.Screen>
+          <Stack.Screen name='TaskEditor' component={TaskEditorScreen}></Stack.Screen>
+        </Stack.Navigator>
+      </NavigationContainer>
     );
   }
   else {
@@ -111,28 +48,3 @@ export default function App() {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'space-between',
-    paddingTop: StatusBar.currentHeight,
-    backgroundColor: 'white',
-  },
-  buttonsContainer: {
-    flex: 0.1,
-    flexDirection: 'row-reverse',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
-    padding: 20,
-  },
-  title: {
-    marginTop: 16,
-    paddingVertical: 8,
-    textAlign: 'center',
-    fontSize: 30,
-    fontWeight: 'bold',
-    fontFamily: 'poppins-regular',
-    color: 'black',
-  }
-});

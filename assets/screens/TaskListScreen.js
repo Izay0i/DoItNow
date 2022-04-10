@@ -1,16 +1,16 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { View, StyleSheet, Text, FlatList } from 'react-native';
 
-export default function TaskList({taskList}) {
+import TaskListItem from '../components/TaskListItem';
+
+export default function TaskListScreen({ navigation, taskList }) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Tasks</Text>
 
       <FlatList 
       data={taskList} 
-      renderItem={({item}) => (
-        <Text style={styles.task}>{item.title}</Text>
-      )} 
+      renderItem={({item}) => <TaskListItem navigation={navigation} item={item}></TaskListItem> } 
       keyExtractor={item => item.id} 
       extraData={taskList}
       ></FlatList>
@@ -20,7 +20,7 @@ export default function TaskList({taskList}) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 0.9,
+    flex: 4,
     borderBottomWidth: 2,
   },
   title: {
@@ -28,15 +28,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     fontWeight: 'bold',
     fontFamily: 'poppins-regular',
-    color: 'black',
-  },
-  task: {
-    borderWidth: 2,
-    borderRadius: 10,
-    borderColor: 'black',
-    padding: 20,
-    marginVertical: 8,
-    marginHorizontal: 16,
     color: 'black',
   }
 });

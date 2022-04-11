@@ -3,7 +3,7 @@ import { View, StyleSheet, Button, Text } from 'react-native';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-export default function TaskEditorScreen() {
+export default function TaskEditorScreen({ navigation }) {
   const [date, setDate] = useState(new Date());
   const [mode, setMode] = useState('date');
   const [show, setShow] = useState(false);

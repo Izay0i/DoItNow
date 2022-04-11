@@ -1,23 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, StatusBar, Button, Text } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, StatusBar } from 'react-native';
+import { createStackNavigator } from '@react-navigation/stack';
 
-import * as Google from 'expo-auth-session/providers/google';
 import * as Notifications from 'expo-notifications';
 
 import TaskListScreen from './TaskListScreen';
+import TaskEditorScreen from './TaskEditorScreen';
 
 let notificationIdentifier = null;
 
-export default function MainScreen({ navigation }) {
-  const [accessToken, setAccessToken] = useState();
-  const [userInfo, setUserInfo] = useState();
-  const [message, setMessage] = useState();
-  
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    androidClientId: '381369859941-4s3bblmr6usua706k36l5mli5qfqdp9h.apps.googleusercontent.com',
-    expoClientId: '381369859941-23i5j8skkqvrgbj7339gf2i692i7o9ln.apps.googleusercontent.com',
-  });
+const Stack = createStackNavigator();
 
+export default function MainScreen({ navigation }) {
   const [tasks, setTasks] = useState([
     {
       id: '1',
@@ -59,36 +53,6 @@ export default function MainScreen({ navigation }) {
     }
   ]);
 
-  useEffect(() => {
-    setMessage(JSON.stringify(response));
-
-    if (response?.type == 'success') {
-      setAccessToken(response.authentication.accessToken);
-    }
-  }, [response]);
-
-  async function getUserData() {
-    let userInfoResponse = await fetch('https://www.googleapis.com/userinfo/v2/me', {
-      headers: { Authorization: `Bearer ${accessToken}` }
-    });
-
-    userInfoResponse.json().then(data => {
-      setUserInfo(data);
-    });
-
-    console.log(message);
-  }
-
-  function showUserInfo() {
-    if (userInfo) {
-      return (
-        <View>
-          <Text style={styles.title}>Welcome {userInfo.name}!</Text>
-        </View>
-      );
-    }
-  }
-
   function addTask() {
     let id = parseInt(tasks[tasks.length - 1].id, 10) + 1;
 
@@ -102,20 +66,10 @@ export default function MainScreen({ navigation }) {
   }
 
   return (
-    <View style={styles.body}>
-      <TaskListScreen navigation={navigation} taskList={tasks}></TaskListScreen>
-
-      <View style={styles.buttonsContainer}>
-        {showUserInfo()}
-
-        <Button 
-        title={accessToken ? 'Get user data' : 'Sync'} 
-        onPress={accessToken ? getUserData: () => {
-          promptAsync({useProxy: true, showInRecents: true});
-        }} 
-        color='purple'></Button>
-      </View>
-    </View>
+    <Stack.Navigator initialRouteName='TaskList' screenOptions={{headerShown: false}}>
+      <Stack.Screen name='TaskList'>{() => <TaskListScreen taskList={tasks}></TaskListScreen>}</Stack.Screen>
+      <Stack.Screen name='TaskEditor' component={TaskEditorScreen}></Stack.Screen>
+    </Stack.Navigator>
   );
 }
 
@@ -125,20 +79,5 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingTop: StatusBar.currentHeight || 0,
     backgroundColor: 'white',
-  },
-  buttonsContainer: {
-    flex: 1,
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
-    padding: 20,
-  },
-  title: {
-    marginTop: 16,
-    paddingVertical: 8,
-    textAlign: 'center',
-    fontSize: 30,
-    fontWeight: 'bold',
-    fontFamily: 'poppins-regular',
-    color: 'black',
   }
 });

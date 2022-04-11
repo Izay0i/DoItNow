@@ -1,13 +1,20 @@
 import React from 'react';
-import { View, StyleSheet, Text, Button, TouchableHighlight } from 'react-native';
 
-export default function TaskListItem({ navigation, item }) {
+import { View, StyleSheet, Text, Button, TouchableHighlight } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+
+export default function TaskListItem({ item }) {
+  const navigation = useNavigation();
+
   return (
     <View style={styles.item}>
-      <TouchableHighlight style={styles.body} onPress={() => {navigation.navigate('TaskEditor')}}>
+      <TouchableHighlight style={styles.body} onPress={() => navigation.navigate('TaskEditor')}>
         <Text>{item.title}</Text>
       </TouchableHighlight>
-      <Button title='🔔' onPress={item?.function}></Button>
+
+      <TouchableHighlight onPress={item?.function}>
+        <Text>🔔</Text>
+      </TouchableHighlight>
     </View>
   );
 }
@@ -18,6 +25,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'red',
   },
   item: {
+    flex: 1,
     borderWidth: 1,
     borderRadius: 10,
     borderColor: 'black',

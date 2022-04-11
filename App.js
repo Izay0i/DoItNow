@@ -1,18 +1,20 @@
 import React from 'react';
 
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import 'react-native-gesture-handler';
 
 import { useFonts } from 'expo-font';
+import { Entypo } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import AppLoading from 'expo-app-loading';
 
 import * as WebBrowser from 'expo-web-browser';
 import * as Notifications from 'expo-notifications';
 
 import MainScreen from './assets/screens/MainScreen';
-import TaskEditorScreen from './assets/screens/TaskEditorScreen';
+import SettingsScreen from './assets/screens/SettingsScreen';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -24,7 +26,7 @@ Notifications.setNotificationHandler({
   })
 });
 
-const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator();
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -35,10 +37,23 @@ export default function App() {
   if (fontsLoaded) {
     return (
       <NavigationContainer>
-        <Stack.Navigator initialRouteName='Main'>
-          <Stack.Screen name='Main' component={MainScreen} options={{ title: 'Home' }}></Stack.Screen>
-          <Stack.Screen name='TaskEditor' component={TaskEditorScreen}></Stack.Screen>
-        </Stack.Navigator>
+        <Tab.Navigator initialRouteName='Main' screenOptions={{ 
+          headerStyle: { 
+            backgroundColor: 'blueviolet', 
+          },
+          headerTitleStyle: {
+            fontWeight: 'bold', 
+            color: 'white', 
+          },
+          headerTitleAlign: 'center',
+        }}>
+          <Tab.Screen name='Home' component={MainScreen} options={{ 
+            tabBarIcon: () => (<Entypo name='home' size={24} color='black' />) 
+          }}></Tab.Screen>
+          <Tab.Screen name='Settings' component={SettingsScreen} options={{ 
+            tabBarIcon: () => (<Ionicons name='settings' size={24} color='black' />) 
+          }}></Tab.Screen>
+        </Tab.Navigator>
       </NavigationContainer>
     );
   }

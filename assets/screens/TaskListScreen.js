@@ -1,16 +1,15 @@
 import React from 'react';
-import { View, StyleSheet, Text, FlatList } from 'react-native';
+
+import { View, StyleSheet, FlatList } from 'react-native';
 
 import TaskListItem from '../components/TaskListItem';
 
-export default function TaskListScreen({ navigation, taskList }) {
+export default function TaskListScreen({ taskList }) {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Tasks</Text>
-
       <FlatList 
       data={taskList} 
-      renderItem={({item}) => <TaskListItem navigation={navigation} item={item}></TaskListItem> } 
+      renderItem={({item}) => <TaskListItem item={item}></TaskListItem> } 
       keyExtractor={item => item.id} 
       extraData={taskList}
       ></FlatList>
@@ -20,8 +19,7 @@ export default function TaskListScreen({ navigation, taskList }) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 4,
-    borderBottomWidth: 2,
+    flex: 1,
   },
   title: {
     fontSize: 24,

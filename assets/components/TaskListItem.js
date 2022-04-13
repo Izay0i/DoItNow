@@ -1,20 +1,22 @@
 import React from 'react';
 
-import { View, StyleSheet, Text, Button, TouchableHighlight } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function TaskListItem({ item }) {
   const navigation = useNavigation();
 
   return (
     <View style={styles.item}>
-      <TouchableHighlight style={styles.body} onPress={() => navigation.navigate('TaskEditor')}>
-        <Text>{item.title}</Text>
-      </TouchableHighlight>
+      <TouchableOpacity style={styles.body} onPress={() => navigation.navigate('TaskEditor')}>
+        <Text style={{fontFamily: 'poppins-regular', fontSize: 20,}}>{item.title}</Text>
+      </TouchableOpacity>
 
-      <TouchableHighlight onPress={item?.function}>
-        <Text>🔔</Text>
-      </TouchableHighlight>
+      <TouchableOpacity onPress={item?.function}>
+        <Ionicons name='notifications' size={24} color='#ffc300'></Ionicons>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -22,18 +24,16 @@ export default function TaskListItem({ item }) {
 const styles = StyleSheet.create({
   body: {
     flex: 1,
-    backgroundColor: 'red',
+    //backgroundColor: 'red',
   },
   item: {
     flex: 1,
-    borderWidth: 1,
-    borderRadius: 10,
-    borderColor: 'black',
-    padding: 20,
+    borderWidth: 2,
+    borderRadius: 8,
+    padding: 16,
     marginVertical: 8,
     marginHorizontal: 16,
-    color: 'black',
     flexDirection: 'row',
     justifyContent: 'space-between',
-  }
+  },
 });

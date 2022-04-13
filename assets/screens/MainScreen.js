@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, StatusBar } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import * as Notifications from 'expo-notifications';
@@ -50,7 +49,43 @@ export default function MainScreen({ navigation }) {
       function: async () => {
         notificationIdentifier && await Notifications.cancelScheduledNotificationAsync(notificationIdentifier);
       }
-    }
+    },
+    {
+      id: '4',
+      title: 'Test',
+    },
+    {
+      id: '5',
+      title: 'Test',
+    },
+    {
+      id: '6',
+      title: 'Test',
+    },
+    {
+      id: '7',
+      title: 'Test',
+    },
+    {
+      id: '8',
+      title: 'Test',
+    },
+    {
+      id: '9',
+      title: 'Test',
+    },
+    {
+      id: '10',
+      title: 'Test',
+    },
+    {
+      id: '11',
+      title: 'Test',
+    },
+    {
+      id: '12',
+      title: 'Test',
+    },
   ]);
 
   function addTask() {
@@ -72,12 +107,3 @@ export default function MainScreen({ navigation }) {
     </Stack.Navigator>
   );
 }
-
-const styles = StyleSheet.create({
-  body: {
-    flex: 1,
-    justifyContent: 'space-between',
-    paddingTop: StatusBar.currentHeight || 0,
-    backgroundColor: 'white',
-  }
-});

@@ -10,8 +10,9 @@ export default function TaskListItem({ item }) {
 
   return (
     <View style={styles.item}>
-      <TouchableOpacity style={styles.body} onPress={() => navigation.navigate('TaskEditor')}>
-        <Text style={{fontFamily: 'poppins-regular', fontSize: 20,}}>{item.title}</Text>
+      <TouchableOpacity style={styles.body} onPress={() => navigation.navigate('TaskEditor', {item})}>
+        <Text style={styles.text}>{item.content.title}</Text>
+        <Ionicons name='repeat' size={24} color={item.trigger.repeats ? '#000000' : '#ffffff'}></Ionicons>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={item?.function}>
@@ -24,16 +25,24 @@ export default function TaskListItem({ item }) {
 const styles = StyleSheet.create({
   body: {
     flex: 1,
-    //backgroundColor: 'red',
+    flexDirection: 'row',
   },
   item: {
     flex: 1,
     borderWidth: 2,
     borderRadius: 8,
+    borderColor: 'gray',
     padding: 16,
     marginVertical: 8,
-    marginHorizontal: 16,
+    marginHorizontal: 12,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    elevation: 8,
+    backgroundColor: '#ffffff',
   },
+  text: {
+    fontFamily: 'poppins-regular',
+    fontSize: 20,
+    marginRight: 8,
+  }
 });

@@ -6,11 +6,13 @@ import { ANDROID_CLIENT_ID, EXPO_CLIENT_ID, USER_INFO_API } from '../constants/a
 import * as Google from 'expo-auth-session/providers/google';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
+import ItemPicker from '../components/ItemPicker';
+import { ResponseType } from 'expo-auth-session';
 
 const IconButton = ({ onPress, iconName, title, backgroundColor }) => {
   return (
     <TouchableOpacity onPress={onPress} style={{backgroundColor, ...styles.iconButton}}>
-      <Ionicons name={iconName} size={22} color='white'></Ionicons>
+      <Ionicons name={iconName} size={28} color='white'></Ionicons>
       <Text style={styles.iconText}>{title}</Text>
     </TouchableOpacity>
   );
@@ -44,9 +46,9 @@ export default function SettingsScreen({ navigation }) {
 
     userInfoResponse.json().then(data => {
       setUserInfo(data);
+      
+      console.log(data);
     });
-
-    console.log(message);
   }
 
   function showUserInfo() {
@@ -60,6 +62,12 @@ export default function SettingsScreen({ navigation }) {
     }
   }
   
+  const items = [
+    { label: 'Auto', value: 'auto' },
+    { label: 'Light', value: 'light' },
+    { label: 'Dark', value: 'dark' },
+  ];
+
   return (
     <View style={styles.body}>
       <View style={styles.buttonsContainer}>
@@ -67,25 +75,19 @@ export default function SettingsScreen({ navigation }) {
 
         <IconButton 
         iconName='logo-google' 
-        title={accessToken ? 'Get user data' : 'Sync with Google'} 
+        title={accessToken ? 'Get user data' : 'SYNC WITH GOOGLE'} 
         backgroundColor='#dd4b39' 
-        onPress={accessToken ? getUserData : () => { promptAsync({useProxy: true, showInRecents: true}); }}></IconButton>
+        onPress={accessToken ? getUserData : () => { promptAsync({useProxy: true}); }}></IconButton>
 
-        <IconButton iconName='arrow-down-outline' title='Import data' backgroundColor='#00b300' onPress={() => {}}></IconButton>
+        <IconButton iconName='arrow-down-outline' title='IMPORT DATA' backgroundColor='#00b300' onPress={() => {}}></IconButton>
 
-        <IconButton iconName='arrow-up-outline' title='Export data' backgroundColor='#44a6c6' onPress={() => {}}></IconButton>
+        <IconButton iconName='arrow-up-outline' title='EXPORT DATA' backgroundColor='#44a6c6' onPress={() => {}}></IconButton>
       </View>
 
       <View style={styles.accessibilityContainer}>
-        <Text style={{fontFamily: 'poppins-regular'}}>Dark theme</Text>
+        <Text style={{fontFamily: 'poppins-bold'}}>THEMES</Text>
 
-        <Switch
-        trackColor={{ false: "#767577", true: "#81b0ff" }}
-        thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
-        ios_backgroundColor="#3e3e3e"
-        onValueChange={toggleSwitch}
-        value={isEnabled}
-        />
+        <ItemPicker itemList={items} onPress={(item) => console.log(item)}></ItemPicker>
       </View>
     </View>
   );
@@ -95,6 +97,7 @@ const styles = StyleSheet.create({
   body: {
     flex: 1,
     padding: 10,
+    backgroundColor: '#ffffff',
   },
   buttonsContainer: {
     flex: 1,
@@ -103,9 +106,7 @@ const styles = StyleSheet.create({
   },
   accessibilityContainer: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
+    alignItems: 'flex-start',
   },
   title: {
     marginTop: 16,
@@ -123,12 +124,13 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     alignItems: 'center',
     justifyContent: 'center',
+    elevation: 8,
   },
   iconText: {
     paddingHorizontal: 10,
     textAlign: 'center',
     fontSize: 18,
-    fontFamily: 'poppins-regular',
+    fontFamily: 'poppins-bold',
     color: 'white',
   }
 });

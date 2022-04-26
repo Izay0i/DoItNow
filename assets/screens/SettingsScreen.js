@@ -7,7 +7,6 @@ import * as Google from 'expo-auth-session/providers/google';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
 import ItemPicker from '../components/ItemPicker';
-import { ResponseType } from 'expo-auth-session';
 
 const IconButton = ({ onPress, iconName, title, backgroundColor }) => {
   return (
@@ -63,9 +62,9 @@ export default function SettingsScreen({ navigation }) {
   }
   
   const items = [
-    { label: 'Auto', value: 'auto' },
-    { label: 'Light', value: 'light' },
-    { label: 'Dark', value: 'dark' },
+    { label: 'Light', value: true },
+    { label: 'Dark', value: false },
+    { label: 'Auto', value: null },
   ];
 
   return (
@@ -76,12 +75,13 @@ export default function SettingsScreen({ navigation }) {
         <IconButton 
         iconName='logo-google' 
         title={accessToken ? 'Get user data' : 'SYNC WITH GOOGLE'} 
-        backgroundColor='#dd4b39' 
-        onPress={accessToken ? getUserData : () => { promptAsync({useProxy: true}); }}></IconButton>
+        backgroundColor='#db4437' 
+        onPress={accessToken ? getUserData : () => { promptAsync({useProxy: true}); }}
+        ></IconButton>
 
-        <IconButton iconName='arrow-down-outline' title='IMPORT DATA' backgroundColor='#00b300' onPress={() => {}}></IconButton>
+        <IconButton iconName='enter-outline' title='IMPORT DATA' backgroundColor='#0f9d58' onPress={() => {}}></IconButton>
 
-        <IconButton iconName='arrow-up-outline' title='EXPORT DATA' backgroundColor='#44a6c6' onPress={() => {}}></IconButton>
+        <IconButton iconName='exit-outline' title='EXPORT DATA' backgroundColor='#4285f4' onPress={() => {}}></IconButton>
       </View>
 
       <View style={styles.accessibilityContainer}>
@@ -97,7 +97,6 @@ const styles = StyleSheet.create({
   body: {
     flex: 1,
     padding: 10,
-    backgroundColor: '#ffffff',
   },
   buttonsContainer: {
     flex: 1,
@@ -121,12 +120,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderRadius: 6,
     padding: 10,
-    marginBottom: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 8,
+    marginVertical: 12,
+    elevation: 12,
+    shadowColor: '#000000',
   },
   iconText: {
+    flex: 1,
     paddingHorizontal: 10,
     textAlign: 'center',
     fontSize: 18,

@@ -32,12 +32,15 @@
     "react-native-calendars": "^1.1282.0",
     "react-native-dropdown-picker": "^5.4.0",
     "react-native-gesture-handler": "~2.1.0",
+    "react-native-popup-menu": "^0.15.12",
     "react-native-safe-area-context": "3.3.2",
     "react-native-screens": "~3.10.1",
     "react-native-svg": "12.1.1",
     "react-native-web": "0.17.1",
     "react-redux": "^7.2.8",
-    "redux": "^4.1.2"
+    "redux": "^4.1.2",
+    "react-native-reanimated": "~2.3.1",
+    "@gorhom/bottom-sheet": "^4"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9"

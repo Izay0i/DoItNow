@@ -1,8 +1,10 @@
 import React, { useState, useCallback, useMemo, useRef } from 'react';
 import { View, StyleSheet, FlatList, TouchableOpacity, Text } from 'react-native';
 import { BottomSheetModal, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { deleteTask, markTaskAsDone } from '../redux/actions';
 import { unsubscribeLocalNotificationAsync } from '../functions/async-notification-functions';
+import { generateTriggerDescription } from '../functions/helper-functions';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
 import TaskListItem from '../components/TaskListItem';
@@ -15,9 +17,9 @@ const CircleButton = ({ onPress, iconName, backgroundColor }) => {
   );
 };
 
-const TransparentTextButton = ({ onPress, text, textColor }) => {
+const TransparentTextButton = ({ onPress, text, textColor, disabled }) => {
   return (
-    <TouchableOpacity onPress={onPress} style={styles.transparentButton}>
+    <TouchableOpacity onPress={onPress} style={styles.transparentButton} disabled={disabled}>
       <Text style={{color: textColor, ...styles.text}}>{text}</Text>
     </TouchableOpacity>
   );
@@ -28,66 +30,36 @@ export default function TaskListScreen({ navigation }) {
 
   const { tasks } = useSelector(state => state.tasksReducer);
 
+  const dispatch = useDispatch();
+
   const bottomSheetModalRef = useRef(null);
 
-  const snapPoints = useMemo(() => ['50%'], []);
+  const snapPoints = useMemo(() => ['70%'], []);
 
   const handlePresentModalPress = useCallback((item) => {
     bottomSheetModalRef.current?.present();
-
     setItem(item);
   }, []);
 
   const handleSheetChanges = useCallback((index) => {
-    console.log('handleSheetChanges', index);
+    //console.log('handleSheetChanges', index);
   }, []);
 
-  const getWeekday = () => {
-    switch (item.trigger?.weekday) {
-      case 1:
-        return 'Sunday ';
-      case 2:
-        return 'Monday ';
-      case 3:
-        return 'Tuesday ';
-      case 4:
-        return 'Wednesday ';
-      case 5:
-        return 'Thursday ';
-      case 6:
-        return 'Friday ';
-      case 7:
-        return 'Saturday ';
-      default:
-        return '';
-    }
+  const editTask = () => {
+    navigation.navigate('TaskEditor', {item});
+    bottomSheetModalRef.current?.dismiss();
   };
 
-  const createTriggerDescription = () => {
-    let descriptionStr = '';
-
-    switch (item.mode) {
-      case 'time':
-        descriptionStr += item.trigger?.dateStr;
-        break;
-      case 'yearly':
-        descriptionStr += item.trigger?.day + '/' + item.trigger?.month + ' ';
-      case 'weekly':
-        descriptionStr += getWeekday();
-      case 'daily':
-        descriptionStr += item.trigger?.hour + ':' + item.trigger?.minute;
-        descriptionStr = 'every ' + descriptionStr;
-    }
-
-    return descriptionStr;
-  };
-
-  const markTaskAsDone = async () => {
-    unsubscribeLocalNotificationAsync(item.id);
+  const markTaskAsDoneAsync = async () => {
+    await unsubscribeLocalNotificationAsync(item.id);
+    dispatch(markTaskAsDone(item));
+    bottomSheetModalRef.current?.dismiss();
   };
 
   const deleteTaskAsync = async () => {
-    unsubscribeLocalNotificationAsync(item.id);
+    await unsubscribeLocalNotificationAsync(item.id);
+    dispatch(deleteTask(item));
+    bottomSheetModalRef.current?.dismiss();
   };
 
   return (
@@ -129,18 +101,17 @@ export default function TaskListScreen({ navigation }) {
         }
       >
         <View style={styles.modalViewContainer}>
-          <View>
-            <Text style={styles.text}>Title: {item.content?.title}</Text>
-            <Text style={styles.text}>Description: {item.content?.body}</Text>
-            <Text style={styles.text}>Triggers on {createTriggerDescription()}</Text>
+          <View style={{flex: 1, padding: 16,}}>
+            <Text style={styles.taskDesText}>Title: {item.content?.title}</Text>
+            <Text style={styles.taskDesText}>Description: {item.content?.body}</Text>
+            <Text style={styles.taskDesText}>Triggers on {generateTriggerDescription(item.mode, item.trigger)}</Text>
           </View>
 
-          <TransparentTextButton text='Mark As Done' textColor='#007aff' onPress={markTaskAsDone}></TransparentTextButton>
-          <TransparentTextButton text='Edit Task' textColor='#007aff' onPress={() => { 
-            navigation.navigate('TaskEditor', {item}); 
-            bottomSheetModalRef.current?.close();   
-          }}></TransparentTextButton>
-          <TransparentTextButton text='Delete Task' textColor='#ff0000'></TransparentTextButton>
+          <View style={{flex: 1,}}>
+            <TransparentTextButton text='Mark As Done' textColor='#007aff' onPress={markTaskAsDoneAsync}></TransparentTextButton>
+            <TransparentTextButton text='Edit Task' textColor='#007aff' onPress={editTask} disabled={item.taskDone}></TransparentTextButton>
+            <TransparentTextButton text='Delete Task' textColor='#ff0000' onPress={deleteTaskAsync}></TransparentTextButton>
+          </View>
         </View>
       </BottomSheetModal>
     </>
@@ -176,12 +147,17 @@ const styles = StyleSheet.create({
     fontFamily: 'poppins-regular',
     textAlign: 'center',
   },
+  taskDesText: {
+    fontSize: 24,
+    fontFamily: 'poppins-regular',
+  },
   circleButton: {
-    borderRadius: 16,
-    margin: 18,
-    padding: 16,
-    alignSelf: 'flex-end',
-    elevation: 8,
+    flex: 1,
+    borderRadius: 10,
+    margin: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 6,
   },
   transparentButton: {
     flex: 1,

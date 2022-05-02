@@ -1,29 +1,14 @@
-import React, { useCallback, useState, useEffect } from 'react';
-import { View, StyleSheet, Keyboard, Text, TextInput, Switch, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { View, StyleSheet, Keyboard, Text, TextInput, Switch, Modal, Button, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { useDispatch } from 'react-redux';
-import { addTask } from '../redux/actions';
-import { subscribeLocalNotificationAsync } from '../functions/async-notification-functions';
+import { addTask, deleteTask } from '../redux/actions';
+import { subscribeLocalNotificationAsync, unsubscribeLocalNotificationAsync } from '../functions/async-notification-functions';
+import { MODES_ENUM, EXPO_WEEKDAYS_ENUM } from '../constants/app-constants';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Ionicons from '@expo/vector-icons/Ionicons';
-
-const modeEnum = {
-  TIME: 'time',
-  DAILY: 'daily',
-  WEEKLY: 'weekly',
-  YEARLY: 'yearly',
-};
-
-const dayEnum = {
-  SUNDAY: 1,
-  MONDAY: 2,
-  TUESDAY: 3,
-  WEDNESDAY: 4,
-  THURSDAY: 5,
-  FRIDAY: 6,
-  SATURDAY: 7,
-};
 
 const DismissKeyboard = ({children}) => {
   return (
@@ -33,9 +18,9 @@ const DismissKeyboard = ({children}) => {
   );
 };
 
-const IconTextButton = ({ onPress, title, iconName, disabled }) => {
+const IconTextButton = ({ onPress, title, iconName, color = '#ffffff', disabled = false }) => {
   return (
-    <TouchableOpacity onPress={onPress} style={{backgroundColor: disabled ? '#999999' : '#ffffff', ...styles.iconTextButton}} disabled={disabled}>
+    <TouchableOpacity onPress={onPress} style={{backgroundColor: disabled ? '#999999' : color, ...styles.iconTextButton}} disabled={disabled}>
       <Ionicons name={iconName} size={24} color='#000000'></Ionicons>
       <Text style={styles.iconTextButtonText}>{title}</Text>
     </TouchableOpacity>
@@ -43,33 +28,52 @@ const IconTextButton = ({ onPress, title, iconName, disabled }) => {
 };
 
 export default function TaskEditorScreen({ route, navigation }) {
+  useEffect(() => {
+    if (routeData) {
+      setTitle(routeData.content.title);
+      setDescription(routeData.content.body);
+
+      setValue(routeData.mode);
+      setDayValue(routeData.trigger.weekday ? routeData.trigger.weekday : days[0].value);
+
+      setDate(new Date(routeData.notificationDate));
+    }
+  }, [routeData]);
+
+  const [routeData, setRouteData] = useState(route.params?.item);
+
+  const [validatorModalVisible, setValidatorModalVisible] = useState(false);
+  
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   
+  const [minCharacters, setMinCharacters] = useState(10);
+  const [maxCharacters, setMaxCharacters] = useState(64);
+
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(modeEnum.TIME);
+  const [value, setValue] = useState(MODES_ENUM.DATE_TIME);
   const [items, setItems] = useState([
-    { label: 'Date & time', value: modeEnum.TIME, },
-    { label: 'Daily', value: modeEnum.DAILY, },
-    { label: 'Weekly', value: modeEnum.WEEKLY, },
-    { label: 'Yearly', value: modeEnum.YEARLY, },
+    { label: 'Date & time', value: MODES_ENUM.DATE_TIME, },
+    { label: 'Daily', value: MODES_ENUM.DAILY, },
+    { label: 'Weekly', value: MODES_ENUM.WEEKLY, },
+    { label: 'Yearly', value: MODES_ENUM.YEARLY, },
   ]);
 
   const [openDays, setOpenDays] = useState(false);
-  const [dayValue, setDayValue] = useState(dayEnum.SUNDAY);
+  const [dayValue, setDayValue] = useState(EXPO_WEEKDAYS_ENUM.SUNDAY);
   const [days, setDays] = useState([
-    { label: 'Sunday', value: dayEnum.SUNDAY, },
-    { label: 'Monday', value: dayEnum.MONDAY, },
-    { label: 'Tuesday', value: dayEnum.TUESDAY, },
-    { label: 'Wednesday', value: dayEnum.WEDNESDAY, },
-    { label: 'Thursday', value: dayEnum.THURSDAY, },
-    { label: 'Friday', value: dayEnum.FRIDAY, },
-    { label: 'Saturday', value: dayEnum.SATURDAY, },
+    { label: 'Sunday', value: EXPO_WEEKDAYS_ENUM.SUNDAY, },
+    { label: 'Monday', value: EXPO_WEEKDAYS_ENUM.MONDAY, },
+    { label: 'Tuesday', value: EXPO_WEEKDAYS_ENUM.TUESDAY, },
+    { label: 'Wednesday', value: EXPO_WEEKDAYS_ENUM.WEDNESDAY, },
+    { label: 'Thursday', value: EXPO_WEEKDAYS_ENUM.THURSDAY, },
+    { label: 'Friday', value: EXPO_WEEKDAYS_ENUM.FRIDAY, },
+    { label: 'Saturday', value: EXPO_WEEKDAYS_ENUM.SATURDAY, },
   ]);
 
-  const [mode, setMode] = useState(modeEnum.TIME);
+  const [mode, setMode] = useState(MODES_ENUM.DATE_TIME);
 
-  const [day, setDay] = useState(dayEnum.SUNDAY);
+  const [day, setDay] = useState(EXPO_WEEKDAYS_ENUM.SUNDAY);
 
   const [date, setDate] = useState(new Date());
   const [timeMode, setTimeMode] = useState('date');
@@ -110,8 +114,20 @@ export default function TaskEditorScreen({ route, navigation }) {
 
   const dispatch = useDispatch();
 
+  const generateWarningText = () => {
+    if (title.length < minCharacters) {
+      return `Title length must be in the range of (${minCharacters} - ${maxCharacters})`;
+    }
+
+    if (description.length < minCharacters) {
+      return `Description length must be in the range of (${minCharacters} - ${maxCharacters})`;
+    }
+
+    return '';
+  };
+
   const createTrigger = () => {
-    let trigger = { repeats: mode !== modeEnum.TIME, };
+    let trigger = { repeats: isEnabled && mode !== MODES_ENUM.DATE_TIME, };
 
     const dateAttrib = date.setSeconds(0);
     const dayAttrib = date.getDate();
@@ -120,21 +136,16 @@ export default function TaskEditorScreen({ route, navigation }) {
     const hourAttrib = date.getHours();
     const minuteAttrib = date.getMinutes();
 
-    console.log('Day', dayAttrib);
-    console.log('Month', monthAttrib);
-    console.log('Hour', hourAttrib);
-    console.log('Minute', minuteAttrib);
-
     switch (mode) {
-      case modeEnum.TIME:
+      case MODES_ENUM.DATE_TIME:
         trigger = { date: dateAttrib, dateStr: date.toLocaleString(), ...trigger };
         break;
-      case modeEnum.WEEKLY:
+      case MODES_ENUM.WEEKLY:
         trigger = { weekday: weekdayAttrib, ...trigger };
-      case modeEnum.DAILY:
+      case MODES_ENUM.DAILY:
         trigger = { hour: hourAttrib, minute: minuteAttrib, ...trigger };
         break;
-      case modeEnum.YEARLY:
+      case MODES_ENUM.YEARLY:
         trigger = { 
           day: dayAttrib, 
           month: monthAttrib, 
@@ -148,7 +159,13 @@ export default function TaskEditorScreen({ route, navigation }) {
     return trigger;
   };
 
-  const addTaskAsync = async () => {
+  const modifyTaskAsync = async () => {
+    const warningText = generateWarningText();
+    if (warningText !== '') {
+      setValidatorModalVisible(!validatorModalVisible);
+      return;
+    }
+
     const content = {
       title,
       body: description,
@@ -161,8 +178,15 @@ export default function TaskEditorScreen({ route, navigation }) {
       content,
       trigger,
       mode,
+      taskDone: false,
+      notificationDate: date.valueOf(),
       createdAt: Date.now(),
     };
+
+    if (routeData) {
+      await unsubscribeLocalNotificationAsync(routeData.id);
+      dispatch(deleteTask(routeData));
+    }
 
     dispatch(addTask(task));
 
@@ -176,12 +200,28 @@ export default function TaskEditorScreen({ route, navigation }) {
   return (
     <DismissKeyboard>
       <View style={styles.body}>
+        <Modal 
+        animationType='fade' 
+        transparent={true} 
+        visible={validatorModalVisible} 
+        onRequestClose={() => setValidatorModalVisible(!validatorModalVisible)}
+        >
+          <BlurView tint='dark' style={{flex: 1,}}>
+            <View style={styles.centeredModalBody}>
+              <View style={styles.modalBody}>
+                <Text style={{textAlign: 'center', ...styles.text}}>{generateWarningText()}</Text>
+                <Button title='Close warning' onPress={() => setValidatorModalVisible(!validatorModalVisible)}></Button>
+              </View>
+            </View>
+          </BlurView>
+        </Modal>
+
         <View style={styles.inputsBody}>
           <TextInput 
           onChangeText={setTitle} 
           value={title} placeholder='Title' 
           style={styles.textInputStyle} 
-          maxLength={64}
+          maxLength={maxCharacters}
           ></TextInput>
 
           <TextInput 
@@ -189,7 +229,7 @@ export default function TaskEditorScreen({ route, navigation }) {
           value={description} 
           placeholder='Description' 
           style={styles.textInputStyle} 
-          maxLength={64}
+          maxLength={maxCharacters}
           ></TextInput>
 
           <View style={{flex: 1, flexDirection: 'row',}}>
@@ -206,7 +246,8 @@ export default function TaskEditorScreen({ route, navigation }) {
               closeAfterSelecting={true} 
               onChangeValue={(value) => setMode(value)}
               onOpen={onModeOpen}  
-              style={{elevation: 8, borderWidth: 0,}}
+              style={{elevation: 2, borderWidth: 0,}} 
+              textStyle={{fontFamily: 'poppins-regular',}}
               ></DropDownPicker>
             </View>
 
@@ -223,8 +264,9 @@ export default function TaskEditorScreen({ route, navigation }) {
               closeAfterSelecting={true}
               onChangeValue={(value) => setDay(value)}
               onOpen={onDayOpen}  
-              disabled={mode !== modeEnum.WEEKLY} 
-              style={{elevation: 8, borderWidth: 0, backgroundColor: mode !== modeEnum.WEEKLY ? '#999999' : '#ffffff'}} 
+              disabled={mode !== MODES_ENUM.WEEKLY} 
+              style={{elevation: 2, borderWidth: 0, backgroundColor: mode !== MODES_ENUM.WEEKLY ? '#999999' : '#ffffff'}} 
+              textStyle={{fontFamily: 'poppins-regular',}} 
               listMode='MODAL'
               ></DropDownPicker>
             </View>
@@ -236,14 +278,14 @@ export default function TaskEditorScreen({ route, navigation }) {
           onPress={showDatePicker} 
           title={date.toLocaleDateString()} 
           iconName='calendar-sharp' 
-          disabled={mode === modeEnum.DAILY || mode === modeEnum.WEEKLY}
+          disabled={mode === MODES_ENUM.DAILY || mode === MODES_ENUM.WEEKLY}
           ></IconTextButton>
 
           <IconTextButton onPress={showTimePicker} title={date.toLocaleTimeString()} iconName='time'></IconTextButton>
 
           <View pointerEvents='none' style={styles.switchBody}>
             <Text style={styles.text}>Repeatable</Text>
-            <Switch onValueChange={toggleSwitch} value={isEnabled} disabled={mode === modeEnum.TIME}></Switch>
+            <Switch onValueChange={toggleSwitch} value={isEnabled} disabled={mode === MODES_ENUM.DATE_TIME}></Switch>
           </View>
 
           {
@@ -260,7 +302,7 @@ export default function TaskEditorScreen({ route, navigation }) {
 
         <View style={styles.modButtonsBody}>
           <IconTextButton onPress={saveAsPresetAsync} title='Save As Preset' iconName='bookmark'></IconTextButton>
-          <IconTextButton onPress={addTaskAsync} title='Add Task' iconName='cube'></IconTextButton>
+          <IconTextButton onPress={modifyTaskAsync} title={routeData ? 'Edit Task' : 'Add Task'} iconName='cube'></IconTextButton>
         </View>
       </View>
     </DismissKeyboard>
@@ -270,6 +312,21 @@ export default function TaskEditorScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   body: {
     flex: 1,
+  },
+  centeredModalBody: {
+    flex: 1,
+    marginTop: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalBody: {
+    margin: 32,
+    padding: 32,
+    alignItems: 'center',
+    borderRadius: 10,
+    backgroundColor: '#ffffff',
+    shadowColor: '#000000',
+    elevation: 4,
   },
   inputsBody: {
     flex: 1,
@@ -301,8 +358,6 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 4,
     backgroundColor: '#ffffff',
-    shadowColor: '#000000',
-    elevation: 8,
   },
   iconTextButton: {
     flex: 1,
@@ -313,7 +368,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 10,
     shadowColor: '#000000',
-    elevation: 8,
+    elevation: 2,
   },
   text: {
     fontFamily: 'poppins-regular',

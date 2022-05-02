@@ -7,8 +7,12 @@ export default function TaskListItem({ item, onPress }) {
   return (
     <View style={styles.item}>
       <TouchableOpacity style={styles.body}>
+          <Ionicons 
+          name={item.taskDone ? 'checkmark-done-sharp' : 'checkmark-sharp'} 
+          size={24} 
+          color={item.taskDone ? '#32b233' : '#000000'}
+          ></Ionicons>
         <Text style={styles.text}>{item.content.title}</Text>
-        <Ionicons name='repeat' size={24} color={item.trigger.repeats ? '#000000' : '#ffffff'}></Ionicons>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={onPress}>
@@ -41,8 +45,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 12,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    elevation: 8,
     backgroundColor: '#ffffff',
+    elevation: 2,
   },
   text: {
     fontFamily: 'poppins-regular',

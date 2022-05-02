@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-import { View, StyleSheet, Text, TouchableOpacity, Switch, Image } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Image } from 'react-native';
 import { ANDROID_CLIENT_ID, EXPO_CLIENT_ID, USER_INFO_API } from '../constants/app-constants';
 
 import * as Google from 'expo-auth-session/providers/google';
@@ -18,9 +18,6 @@ const IconButton = ({ onPress, iconName, title, backgroundColor }) => {
 };
 
 export default function SettingsScreen({ navigation }) {
-  const [isEnabled, setIsEnabled] = useState(false);
-  const toggleSwitch = () => setIsEnabled(previousState => !previousState);
-
   const [accessToken, setAccessToken] = useState();
   const [userInfo, setUserInfo] = useState();
   const [message, setMessage] = useState();
@@ -74,21 +71,21 @@ export default function SettingsScreen({ navigation }) {
 
         <IconButton 
         iconName='logo-google' 
-        title={accessToken ? 'Get user data' : 'SYNC WITH GOOGLE'} 
+        title={accessToken ? 'SYNC DATA' : 'LOGIN WITH GOOGLE'} 
         backgroundColor='#db4437' 
         onPress={accessToken ? getUserData : () => { promptAsync({useProxy: true}); }}
         ></IconButton>
 
-        <IconButton iconName='enter-outline' title='IMPORT DATA' backgroundColor='#0f9d58' onPress={() => {}}></IconButton>
+        {/* <IconButton iconName='enter-outline' title='IMPORT DATA' backgroundColor='#0f9d58' onPress={() => {}}></IconButton>
 
-        <IconButton iconName='exit-outline' title='EXPORT DATA' backgroundColor='#4285f4' onPress={() => {}}></IconButton>
+        <IconButton iconName='exit-outline' title='EXPORT DATA' backgroundColor='#4285f4' onPress={() => {}}></IconButton> */}
       </View>
 
-      <View style={styles.accessibilityContainer}>
+      {/* <View style={styles.accessibilityContainer}>
         <Text style={{fontFamily: 'poppins-bold'}}>THEMES</Text>
 
         <ItemPicker itemList={items} onPress={(item) => console.log(item)}></ItemPicker>
-      </View>
+      </View> */}
     </View>
   );
 }
@@ -121,8 +118,8 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     padding: 10,
     marginVertical: 12,
-    elevation: 12,
     shadowColor: '#000000',
+    elevation: 4,
   },
   iconText: {
     flex: 1,

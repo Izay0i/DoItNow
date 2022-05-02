@@ -50,22 +50,14 @@ export default function App() {
           <NavigationContainer>
             <Tab.Navigator initialRouteName='Main' screenOptions={{ 
               headerStyle: {
-                elevation: 12,
                 backgroundColor: '#ffffff',
-                shadowColor: '#000000',
               },
               headerTitleStyle: {
-                //color: 'white', 
+                color: '#000000', 
                 fontFamily: 'poppins-bold',
                 fontSize: 32,
               },
               headerTitleAlign: 'center',
-              tabBarStyle: {
-                //height: 60,
-                //position: 'absolute',
-                //margin: 20,
-                //borderRadius: 16,
-              },
               tabBarShowLabel: false,
             }}>
               <Tab.Screen name='Home' component={MainScreen} options={{ 

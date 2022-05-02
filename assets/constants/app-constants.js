@@ -5,3 +5,20 @@ export const USER_INFO_API = 'https://www.googleapis.com/userinfo/v2/me';
 
 export const UNFINISHED_TASKS = 'UnfininishedTasksList';
 export const FINISHED_TASKS = 'FinishedTasksList';
+
+export const MODES_ENUM = {
+    DATE_TIME: 'dateTime',
+    DAILY: 'daily',
+    WEEKLY: 'weekly',
+    YEARLY: 'yearly',
+};
+
+export const EXPO_WEEKDAYS_ENUM = {
+    SUNDAY: 1,
+    MONDAY: 2,
+    TUESDAY: 3,
+    WEDNESDAY: 4,
+    THURSDAY: 5,
+    FRIDAY: 6,
+    SATURDAY: 7,
+};

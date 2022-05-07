@@ -39,6 +39,8 @@ export default function TaskListScreen({ navigation }) {
   const handlePresentModalPress = useCallback((item) => {
     bottomSheetModalRef.current?.present();
     setItem(item);
+
+    console.log(item);
   }, []);
 
   const handleSheetChanges = useCallback((index) => {
@@ -108,8 +110,20 @@ export default function TaskListScreen({ navigation }) {
           </View>
 
           <View style={{flex: 1,}}>
-            <TransparentTextButton text='Mark As Done' textColor='#007aff' onPress={markTaskAsDoneAsync}></TransparentTextButton>
-            <TransparentTextButton text='Edit Task' textColor='#007aff' onPress={editTask} disabled={item.taskDone}></TransparentTextButton>
+            <TransparentTextButton 
+            text='Mark As Done' 
+            textColor={item.taskDone ? '#999999' : '#007aff'} 
+            onPress={markTaskAsDoneAsync} 
+            disabled={item.taskDone}
+            ></TransparentTextButton>
+
+            <TransparentTextButton 
+            text='Edit Task' 
+            textColor={item.taskDone ? '#999999' : '#007aff'} 
+            onPress={editTask} 
+            disabled={item.taskDone}
+            ></TransparentTextButton>
+            
             <TransparentTextButton text='Delete Task' textColor='#ff0000' onPress={deleteTaskAsync}></TransparentTextButton>
           </View>
         </View>
@@ -157,7 +171,6 @@ const styles = StyleSheet.create({
     margin: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 6,
   },
   transparentButton: {
     flex: 1,

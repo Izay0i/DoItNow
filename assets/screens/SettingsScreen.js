@@ -71,7 +71,7 @@ export default function SettingsScreen({ navigation }) {
 
         <IconButton 
         iconName='logo-google' 
-        title={accessToken ? 'SYNC DATA' : 'LOGIN WITH GOOGLE'} 
+        title={accessToken ? 'SYNC DATA' : 'SIGN IN WITH GOOGLE'} 
         backgroundColor='#db4437' 
         onPress={accessToken ? getUserData : () => { promptAsync({useProxy: true}); }}
         ></IconButton>

@@ -46,7 +46,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     backgroundColor: '#ffffff',
-    elevation: 2,
   },
   text: {
     fontFamily: 'poppins-regular',

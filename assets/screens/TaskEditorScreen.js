@@ -79,12 +79,6 @@ export default function TaskEditorScreen({ route, navigation }) {
   const [timeMode, setTimeMode] = useState('date');
   const [show, setShow] = useState(false);
 
-  const [isEnabled, setEnabled] = useState(true);
-
-  const toggleSwitch = () => {
-    setEnabled(previousState => !previousState);
-  };
-
   const onModeOpen = useCallback(() => {
     setOpenDays(false);
   });
@@ -127,7 +121,7 @@ export default function TaskEditorScreen({ route, navigation }) {
   };
 
   const createTrigger = () => {
-    let trigger = { repeats: isEnabled && mode !== MODES_ENUM.DATE_TIME, };
+    let trigger = { repeats: mode !== MODES_ENUM.DATE_TIME, };
 
     const dateAttrib = date.setSeconds(0);
     const dayAttrib = date.getDate();
@@ -190,6 +184,8 @@ export default function TaskEditorScreen({ route, navigation }) {
 
     dispatch(addTask(task));
 
+    console.log(task);
+
     navigation.popToTop();
   };
 
@@ -246,7 +242,7 @@ export default function TaskEditorScreen({ route, navigation }) {
               closeAfterSelecting={true} 
               onChangeValue={(value) => setMode(value)}
               onOpen={onModeOpen}  
-              style={{elevation: 2, borderWidth: 0,}} 
+              style={{borderWidth: 0,}} 
               textStyle={{fontFamily: 'poppins-regular',}}
               ></DropDownPicker>
             </View>
@@ -265,7 +261,7 @@ export default function TaskEditorScreen({ route, navigation }) {
               onChangeValue={(value) => setDay(value)}
               onOpen={onDayOpen}  
               disabled={mode !== MODES_ENUM.WEEKLY} 
-              style={{elevation: 2, borderWidth: 0, backgroundColor: mode !== MODES_ENUM.WEEKLY ? '#999999' : '#ffffff'}} 
+              style={{borderWidth: 0, backgroundColor: mode !== MODES_ENUM.WEEKLY ? '#999999' : '#ffffff'}} 
               textStyle={{fontFamily: 'poppins-regular',}} 
               listMode='MODAL'
               ></DropDownPicker>
@@ -278,14 +274,19 @@ export default function TaskEditorScreen({ route, navigation }) {
           onPress={showDatePicker} 
           title={date.toLocaleDateString()} 
           iconName='calendar-sharp' 
+          color='#e0d268' 
           disabled={mode === MODES_ENUM.DAILY || mode === MODES_ENUM.WEEKLY}
           ></IconTextButton>
 
-          <IconTextButton onPress={showTimePicker} title={date.toLocaleTimeString()} iconName='time'></IconTextButton>
+          <IconTextButton onPress={showTimePicker} title={date.toLocaleTimeString()} iconName='time' color='#e0d268'></IconTextButton>
 
           <View pointerEvents='none' style={styles.switchBody}>
             <Text style={styles.text}>Repeatable</Text>
-            <Switch onValueChange={toggleSwitch} value={isEnabled} disabled={mode === MODES_ENUM.DATE_TIME}></Switch>
+            <Ionicons 
+            name={mode === MODES_ENUM.DATE_TIME ? 'close' : 'checkmark'} 
+            size={24} 
+            color={mode === MODES_ENUM.DATE_TIME ? '#ff0000' : '#32b233'}
+            ></Ionicons>
           </View>
 
           {
@@ -301,8 +302,7 @@ export default function TaskEditorScreen({ route, navigation }) {
         </View>
 
         <View style={styles.modButtonsBody}>
-          <IconTextButton onPress={saveAsPresetAsync} title='Save As Preset' iconName='bookmark'></IconTextButton>
-          <IconTextButton onPress={modifyTaskAsync} title={routeData ? 'Edit Task' : 'Add Task'} iconName='cube'></IconTextButton>
+          <IconTextButton onPress={modifyTaskAsync} title={routeData ? 'Edit Task' : 'Add Task'} iconName='cube' color='#83a1cd'></IconTextButton>
         </View>
       </View>
     </DismissKeyboard>
@@ -346,8 +346,9 @@ const styles = StyleSheet.create({
   switchBody: {
     flex: 1,
     flexDirection: 'row',
+    paddingLeft: 16,
     alignItems: 'center',
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-start',
   },
   modButtonsBody: {
     flex: 1,
@@ -367,8 +368,6 @@ const styles = StyleSheet.create({
     padding: 22,
     alignItems: 'center',
     borderRadius: 10,
-    shadowColor: '#000000',
-    elevation: 2,
   },
   text: {
     fontFamily: 'poppins-regular',

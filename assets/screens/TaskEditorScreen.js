@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, StyleSheet, Keyboard, Text, TextInput, Switch, Modal, Button, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Keyboard, Text, TextInput, Modal, Button, Switch, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { useDispatch } from 'react-redux';
 import { addTask, deleteTask } from '../redux/actions';
 import { subscribeLocalNotificationAsync, unsubscribeLocalNotificationAsync } from '../functions/async-notification-functions';
+import { generateTriggerDescription } from '../functions/helper-functions';
 import { MODES_ENUM, EXPO_WEEKDAYS_ENUM } from '../constants/app-constants';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -38,7 +39,11 @@ export default function TaskEditorScreen({ route, navigation }) {
 
       setDate(new Date(routeData.notificationDate));
     }
-  }, [routeData]);
+
+    if (route.params?.locationName) {
+      setLocationName(route.params?.locationName);
+    }
+  }, [routeData, route.params?.locationName]);
 
   const [routeData, setRouteData] = useState(route.params?.item);
 
@@ -49,6 +54,8 @@ export default function TaskEditorScreen({ route, navigation }) {
   
   const [minCharacters, setMinCharacters] = useState(10);
   const [maxCharacters, setMaxCharacters] = useState(64);
+
+  const [isUrgent, setIsUrgent] = useState(false);
 
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(MODES_ENUM.DATE_TIME);
@@ -78,6 +85,10 @@ export default function TaskEditorScreen({ route, navigation }) {
   const [date, setDate] = useState(new Date());
   const [timeMode, setTimeMode] = useState('date');
   const [show, setShow] = useState(false);
+
+  const [locationName, setLocationName] = useState('Pick a location');
+
+  const toggleSwitch = () => setIsUrgent(previousState => !previousState);
 
   const onModeOpen = useCallback(() => {
     setOpenDays(false);
@@ -153,6 +164,29 @@ export default function TaskEditorScreen({ route, navigation }) {
     return trigger;
   };
 
+  const createFrequentReminder = async (trig) => {
+    const triggerDescription = generateTriggerDescription(mode, trig);
+
+    const content = {
+      title: `[ALERT] Upcoming event: ${title}`,
+      body: `On ${triggerDescription}`,
+    };
+
+    //1/3 of the duration of the parent notification
+    const minutesTillDeadline = date.getMinutes() - new Date().getMinutes();
+    const seconds = Math.floor((minutesTillDeadline * 60) / 3);
+
+    console.log(minutesTillDeadline * 60);
+
+    const trigger = {
+      seconds,
+      repeats: true,
+    };
+
+    const id = await subscribeLocalNotificationAsync(content, trigger);
+    return id;
+  };
+
   const modifyTaskAsync = async () => {
     const warningText = generateWarningText();
     if (warningText !== '') {
@@ -169,6 +203,7 @@ export default function TaskEditorScreen({ route, navigation }) {
 
     const task = {
       id: await subscribeLocalNotificationAsync(content, trigger),
+      childId: isUrgent ? await createFrequentReminder(trigger) : '',
       content,
       trigger,
       mode,
@@ -178,6 +213,7 @@ export default function TaskEditorScreen({ route, navigation }) {
     };
 
     if (routeData) {
+      await unsubscribeLocalNotificationAsync(routeData.childId);
       await unsubscribeLocalNotificationAsync(routeData.id);
       dispatch(deleteTask(routeData));
     }
@@ -187,10 +223,6 @@ export default function TaskEditorScreen({ route, navigation }) {
     console.log(task);
 
     navigation.popToTop();
-  };
-
-  const saveAsPresetAsync = async () => {
-    console.log('Saved as preset');
   };
 
   return (
@@ -274,20 +306,31 @@ export default function TaskEditorScreen({ route, navigation }) {
           onPress={showDatePicker} 
           title={date.toLocaleDateString()} 
           iconName='calendar-sharp' 
-          color='#e0d268' 
+          color='#0096ff' 
           disabled={mode === MODES_ENUM.DAILY || mode === MODES_ENUM.WEEKLY}
           ></IconTextButton>
 
-          <IconTextButton onPress={showTimePicker} title={date.toLocaleTimeString()} iconName='time' color='#e0d268'></IconTextButton>
+          <IconTextButton onPress={showTimePicker} title={date.toLocaleTimeString()} iconName='time' color='#0096ff'></IconTextButton>
 
-          <View pointerEvents='none' style={styles.switchBody}>
-            <Text style={styles.text}>Repeatable</Text>
-            <Ionicons 
-            name={mode === MODES_ENUM.DATE_TIME ? 'close' : 'checkmark'} 
-            size={24} 
-            color={mode === MODES_ENUM.DATE_TIME ? '#ff0000' : '#32b233'}
-            ></Ionicons>
+          <IconTextButton onPress={() => navigation.navigate('Geolocation')} title={locationName} iconName='location-sharp' color='#0096ff'></IconTextButton>
+
+          <View style={styles.switchBody}>
+            <View style={{flex: 1, flexDirection: 'row',}}>
+              <Text style={styles.text}>Will repeat</Text>
+              <Ionicons 
+              name={mode === MODES_ENUM.DATE_TIME ? 'close' : 'checkmark'} 
+              size={24} 
+              color={mode === MODES_ENUM.DATE_TIME ? '#ff0000' : '#32b233'}
+              ></Ionicons>
+            </View>
+            
+            <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',}}>
+              <Text style={styles.text}>Is urgent</Text>
+              <Switch onValueChange={toggleSwitch} value={isUrgent}></Switch>
+            </View>
           </View>
+
+          <IconTextButton onPress={modifyTaskAsync} title={routeData ? 'Edit Task' : 'Add Task'} iconName='cube' color='#ffa500'></IconTextButton>
 
           {
             show && 
@@ -299,10 +342,6 @@ export default function TaskEditorScreen({ route, navigation }) {
             onChange={onChange}
             ></DateTimePicker>
           }
-        </View>
-
-        <View style={styles.modButtonsBody}>
-          <IconTextButton onPress={modifyTaskAsync} title={routeData ? 'Edit Task' : 'Add Task'} iconName='cube' color='#83a1cd'></IconTextButton>
         </View>
       </View>
     </DismissKeyboard>
@@ -340,20 +379,14 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   timePickerBody: {
-    flex: 1,
+    flex: 2,
     zIndex: 0,
   },
   switchBody: {
     flex: 1,
     flexDirection: 'row',
-    paddingLeft: 16,
+    paddingHorizontal: 16,
     alignItems: 'center',
-    justifyContent: 'flex-start',
-  },
-  modButtonsBody: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
   },
   textInputStyle: {
     padding: 16,

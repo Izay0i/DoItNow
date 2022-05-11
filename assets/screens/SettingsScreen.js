@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-
 import { View, StyleSheet, Text, TouchableOpacity, Image } from 'react-native';
 import { ANDROID_CLIENT_ID, EXPO_CLIENT_ID, USER_INFO_API } from '../constants/app-constants';
 
@@ -118,8 +117,6 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     padding: 10,
     marginVertical: 12,
-    shadowColor: '#000000',
-    elevation: 4,
   },
   iconText: {
     flex: 1,

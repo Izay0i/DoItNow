@@ -7,7 +7,7 @@ import { unsubscribeLocalNotificationAsync } from '../functions/async-notificati
 import { generateTriggerDescription } from '../functions/helper-functions';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
-import TaskListItem from '../components/TaskListItem';
+import TaskListItem, { ITEM_HEIGHT } from '../components/TaskListItem';
 
 const CircleButton = ({ onPress, iconName, backgroundColor }) => {
   return (
@@ -34,18 +34,38 @@ export default function TaskListScreen({ navigation }) {
 
   const bottomSheetModalRef = useRef(null);
 
-  const snapPoints = useMemo(() => ['70%'], []);
+  const snapPoints = useMemo(() => ['85%'], []);
 
   const handlePresentModalPress = useCallback((item) => {
     bottomSheetModalRef.current?.present();
     setItem(item);
 
-    console.log(item);
+    //console.log(item);
   }, []);
 
   const handleSheetChanges = useCallback((index) => {
     //console.log('handleSheetChanges', index);
   }, []);
+
+  const renderItem = useCallback(({ item }) => (
+    <TaskListItem item={item} onPress={() => handlePresentModalPress(item)}></TaskListItem>
+  ), []);
+
+  const keyExtractor = useCallback((item) => item.id, []);
+
+  const getItemLayout = useCallback((data, index) => ({
+    length: ITEM_HEIGHT,
+    offset: ITEM_HEIGHT * index,
+    index,
+  }), []);
+
+  const backdropComponent = useCallback((backdropProps) => (
+    <BottomSheetBackdrop 
+    {...backdropProps} 
+    appearsOnIndex={0} 
+    disappearsOnIndex={-1}
+    ></BottomSheetBackdrop>
+  ), []);
 
   const editTask = () => {
     navigation.navigate('TaskEditor', {item});
@@ -53,12 +73,14 @@ export default function TaskListScreen({ navigation }) {
   };
 
   const markTaskAsDoneAsync = async () => {
+    await unsubscribeLocalNotificationAsync(item.childId);
     await unsubscribeLocalNotificationAsync(item.id);
     dispatch(markTaskAsDone(item));
     bottomSheetModalRef.current?.dismiss();
   };
 
   const deleteTaskAsync = async () => {
+    await unsubscribeLocalNotificationAsync(item.childId);
     await unsubscribeLocalNotificationAsync(item.id);
     dispatch(deleteTask(item));
     bottomSheetModalRef.current?.dismiss();
@@ -70,12 +92,10 @@ export default function TaskListScreen({ navigation }) {
         <View style={styles.body}>
           <FlatList 
           data={tasks} 
-          renderItem={({item}) => <TaskListItem 
-            item={item} 
-            onPress={() => handlePresentModalPress(item)}></TaskListItem>
-          } 
-          keyExtractor={item => item.id} 
-          extraData={tasks}
+          renderItem={renderItem} 
+          keyExtractor={keyExtractor} 
+          extraData={tasks} 
+          getItemLayout={getItemLayout}
           ></FlatList>
         </View>
 
@@ -93,14 +113,7 @@ export default function TaskListScreen({ navigation }) {
       snapPoints={snapPoints} 
       onChange={handleSheetChanges} 
       style={styles.modalContainer} 
-      backdropComponent={
-        (backdropProps) => (
-          <BottomSheetBackdrop 
-          {...backdropProps} 
-          appearsOnIndex={0} 
-          disappearsOnIndex={-1}
-          ></BottomSheetBackdrop>)
-        }
+      backdropComponent={backdropComponent}
       >
         <View style={styles.modalViewContainer}>
           <View style={{flex: 1, padding: 16,}}>
@@ -175,5 +188,7 @@ const styles = StyleSheet.create({
   transparentButton: {
     flex: 1,
     justifyContent: 'center',
+    borderBottomWidth: 2,
+    borderColor: '#999999',
   }
 });

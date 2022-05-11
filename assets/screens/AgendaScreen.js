@@ -1,11 +1,11 @@
 import React from 'react';
 
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 
-export default function AgendaScreen({ navigation }) {
+export default function AgendaScreen() {
   return (
     <View>
-
+      
     </View>
   );
 }

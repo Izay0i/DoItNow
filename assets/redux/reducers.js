@@ -23,7 +23,7 @@ export default function tasksReducer(state = initialState, action) {
             taskDone: true,
           }
         })
-      }
+      };
     default:
       return state;
   }

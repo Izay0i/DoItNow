@@ -60,11 +60,7 @@ export default function TaskListScreen({ navigation }) {
   }), []);
 
   const backdropComponent = useCallback((backdropProps) => (
-    <BottomSheetBackdrop 
-    {...backdropProps} 
-    appearsOnIndex={0} 
-    disappearsOnIndex={-1}
-    ></BottomSheetBackdrop>
+    <BottomSheetBackdrop {...backdropProps} appearsOnIndex={0} disappearsOnIndex={-1}></BottomSheetBackdrop>
   ), []);
 
   const editTask = () => {
@@ -97,6 +93,11 @@ export default function TaskListScreen({ navigation }) {
           extraData={tasks} 
           getItemLayout={getItemLayout}
           ></FlatList>
+
+          {tasks.length === 0 && 
+          <View style={{flex: 1,}}>
+            <Text style={{...styles.text, color: '#999999',}}>Get started by clicking the button below</Text>
+          </View>}
         </View>
 
         <View style={styles.buttonsContainer}>
@@ -116,10 +117,11 @@ export default function TaskListScreen({ navigation }) {
       backdropComponent={backdropComponent}
       >
         <View style={styles.modalViewContainer}>
-          <View style={{flex: 1, padding: 16,}}>
+          <View style={{flex: 2, padding: 16,}}>
             <Text style={styles.taskDesText}>Title: {item.content?.title}</Text>
             <Text style={styles.taskDesText}>Description: {item.content?.body}</Text>
             <Text style={styles.taskDesText}>Triggers on {generateTriggerDescription(item.mode, item.trigger)}</Text>
+            {item.location !== '' && <Text style={styles.taskDesText}>At {item.location}</Text>}
           </View>
 
           <View style={{flex: 1,}}>

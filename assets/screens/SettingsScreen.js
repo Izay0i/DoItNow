@@ -10,7 +10,7 @@ import ItemPicker from '../components/ItemPicker';
 const IconButton = ({ onPress, iconName, title, backgroundColor }) => {
   return (
     <TouchableOpacity onPress={onPress} style={{backgroundColor, ...styles.iconButton}}>
-      <Ionicons name={iconName} size={28} color='white'></Ionicons>
+      <Ionicons name={iconName} size={28} color='#ffffff'></Ionicons>
       <Text style={styles.iconText}>{title}</Text>
     </TouchableOpacity>
   );

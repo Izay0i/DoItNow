@@ -18,7 +18,7 @@ const TaskListItem = ({ item, onPress }) => {
           color={item.taskDone ? '#32b233' : '#000000'}
           ></Ionicons>
           {item.childId !== '' && <Ionicons name='alert-circle' size={24} color='#ffa500'></Ionicons>}
-          <Ionicons name='warning-sharp' size={24} color='#ff0000'></Ionicons>
+          {/* <Ionicons name='warning-sharp' size={24} color='#ff0000'></Ionicons> */}
         </View>
       </TouchableOpacity>
 

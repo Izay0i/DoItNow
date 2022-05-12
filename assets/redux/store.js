@@ -6,9 +6,9 @@ import tasksReducer from './reducers';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const persistConfig = {
-    key: 'root',
-    storage: AsyncStorage,
-    writeFailHandler: (err) => console.err(err),
+  key: 'root',
+  storage: AsyncStorage,
+  writeFailHandler: (err) => console.err(err),
 }
 
 const rootReducer = combineReducers({tasksReducer});

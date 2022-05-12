@@ -1,14 +1,42 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { View, StyleSheet, Dimensions, LogBox, Text, Button } from 'react-native';
+import { View, StyleSheet, Dimensions, LogBox, Text, Button, TextInput, FlatList } from 'react-native';
+import { LOCATION_AUTOCOMPLETE_API } from '../constants/app-constants';
 
 import * as Location from 'expo-location';
 
 import MapView, { Marker } from 'react-native-maps';
+import LocationItem from '../components/LocationItem';
 
 LogBox.ignoreAllLogs();
 
-const LATITUDE_DELTA = 0.05;
-const LONGITUDE_DELTA = 0.05;
+const LATITUDE_DELTA = 0.001;
+const LONGITUDE_DELTA = 0.001;
+
+const AutocompleteDropdown = ({data, text, placeholderText, renderItem, keyExtractor, onChangeText, onSubmit}) => {
+  const SEARCH_MAX_LENGTH = 200;
+
+  return (
+    <View style={{position: 'absolute', width: '100%',}}>
+      <TextInput 
+      value={text} 
+      placeholder={placeholderText} 
+      maxLength={SEARCH_MAX_LENGTH} 
+      onChangeText={onChangeText} 
+      onSubmitEditing={onSubmit} 
+      style={{...styles.textInputStyle, borderBottomLeftRadius: data.length !== 0 ? 0 : 10, borderBottomRightRadius: data.length !== 0 ? 0 : 10,}}
+      ></TextInput>
+      
+      {data.length !== 0 && 
+      <FlatList 
+      data={data} 
+      extraData={data} 
+      renderItem={renderItem} 
+      keyExtractor={keyExtractor} 
+      style={{position: 'absolute', width: '100%', top: 55}}
+      ></FlatList>}
+    </View>
+  );
+};
 
 export default function GeolocationScreen({ navigation }) {
   useEffect(() => {
@@ -39,7 +67,9 @@ export default function GeolocationScreen({ navigation }) {
   }, []);
 
   const [location, setLocation] = useState({latitude: 0, longitude: 0});
+  const [locations, setLocations] = useState([]);
   const [locationName, setLocationName] = useState('');
+  const [locationSearch, setLocationSearch] = useState('');
   const [initialRegion, setInitialRegion] = useState(null);
   const [region, setRegion] = useState(null);
   const [hasPermission, setHasPermission] = useState(false);
@@ -80,6 +110,50 @@ export default function GeolocationScreen({ navigation }) {
     setLocationName(locationName);
   }, [locationName]);
 
+  const renderItem = useCallback(({ item }) => (
+    <LocationItem location={item} onPress={(latitude, longitude) => setMarkerAndRegion(latitude, longitude)}></LocationItem>
+  ), []);
+
+  const keyExtractor = useCallback((item) => item.place_id + item.osm_id + item.class, []);
+
+  const onLocationSubmit = useCallback(async () => {
+    if (locationSearch.length === 0) {
+      setLocations([]);
+      return;
+    }
+
+    let locations = await fetch(`${LOCATION_AUTOCOMPLETE_API}&q=${locationSearch}&limit=5`, {
+      method: 'GET',
+    });
+
+    locations.json().then(data => {
+      setLocations(data);
+    });
+  }, [locations]);
+
+  const setMarkerAndRegion = (lat, lon) => {
+    const latitude = Number(lat);
+    const longitude = Number(lon);
+
+    (async () => {
+      await getAddressFromCoordinate(latitude, longitude);
+    })();
+
+    setLocation({ latitude, longitude });
+    markerRef.current?.animateMarkerToCoordinate(location, 3 * 1000);
+
+    setRegion({
+      latitude,
+      longitude,
+      latitudeDelta: LATITUDE_DELTA,
+      longitudeDelta: LONGITUDE_DELTA,
+    });
+    mapViewRef.current?.animateToRegion(region, 3 * 1000);
+
+    setLocationSearch('');
+    setLocations([]);
+  };
+
   const navigateBack = () => {
     navigation.navigate({
       name: 'TaskEditor',
@@ -98,9 +172,19 @@ export default function GeolocationScreen({ navigation }) {
       onRegionChangeComplete={onRegionChangeComplete}>
         <Marker ref={markerRef} draggable title={locationName} coordinate={location} onDragEnd={onDragEnd}></Marker>
       </MapView>
-      
+
+      <AutocompleteDropdown 
+      data={locations} 
+      text={locationSearch} 
+      placeholderText='Search location...' 
+      renderItem={renderItem} 
+      keyExtractor={keyExtractor} 
+      onChangeText={setLocationSearch} 
+      onSubmit={onLocationSubmit}
+      ></AutocompleteDropdown>
+
       <View style={styles.controlsBody}>
-        <Text style={styles.textStyle}>Selected location: {locationName}</Text>
+        <Text style={styles.textStyle}>Current location: {locationName}</Text>
         <Button title='Set location' onPress={navigateBack}></Button>
       </View>
     </View>
@@ -119,6 +203,13 @@ const styles = StyleSheet.create({
   controlsBody: {
     flex: 1,
     justifyContent: 'space-between',
+  },
+  textInputStyle: {
+    borderWidth: 2,
+    borderRadius: 10,
+    padding: 8,
+    margin: 8,
+    backgroundColor: '#ffffff',
   },
   textStyle: {
     fontFamily: 'poppins-regular',

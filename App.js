@@ -89,7 +89,7 @@ export default function App() {
               tabBarIcon: ({focused}) => (<Ionicons name={focused ? 'home' : 'home-outline'} size={42} color='black' />) 
             }}></Tab.Screen>
             <Tab.Screen name='Schedules' component={AgendaScreen} options={{ 
-              tabBarIcon: ({focused}) => (<Ionicons name={focused ? 'documents' : 'documents-outline'} size={42} color='black' />) 
+              tabBarIcon: ({focused}) => (<Ionicons name={focused ? 'calendar' : 'calendar-outline'} size={42} color='black' />) 
             }}></Tab.Screen>
             <Tab.Screen name='Settings' component={SettingsScreen} options={{ 
               tabBarIcon: ({focused}) => (<Ionicons name={focused ? 'settings' : 'settings-outline'} size={42} color='black' />) 

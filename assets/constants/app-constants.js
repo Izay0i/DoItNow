@@ -6,6 +6,9 @@ export const USER_INFO_API = 'https://www.googleapis.com/userinfo/v2/me';
 export const UNFINISHED_TASKS = 'UnfininishedTasksList';
 export const FINISHED_TASKS = 'FinishedTasksList';
 
+const ACCESS_TOKEN = 'pk.55d35cf09e140f6340d1d7e21f6eafda';
+export const LOCATION_AUTOCOMPLETE_API = `https://api.locationiq.com/v1/autocomplete.php?key=${ACCESS_TOKEN}`;
+
 export const MODES_ENUM = {
     DATE_TIME: 'dateTime',
     DAILY: 'daily',

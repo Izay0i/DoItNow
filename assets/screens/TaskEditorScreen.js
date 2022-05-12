@@ -11,7 +11,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-const DismissKeyboard = ({children}) => {
+const DismissKeyboard = ({ children }) => {
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       {children}
@@ -34,10 +34,14 @@ export default function TaskEditorScreen({ route, navigation }) {
       setTitle(routeData.content.title);
       setDescription(routeData.content.body);
 
+      setIsUrgent(routeData.childId !== '');
+
       setValue(routeData.mode);
       setDayValue(routeData.trigger.weekday ? routeData.trigger.weekday : days[0].value);
 
       setDate(new Date(routeData.notificationDate));
+
+      setLocationName(routeData.location !== '' ? routeData.location : locationName);
     }
 
     if (route.params?.locationName) {
@@ -128,6 +132,13 @@ export default function TaskEditorScreen({ route, navigation }) {
       return `Description length must be in the range of (${minCharacters} - ${maxCharacters})`;
     }
 
+    const timeSet = date.setSeconds(0);
+    const timeFiveMinLater = Date.now() + 300 * 1000;
+
+    if (isUrgent && timeSet - timeFiveMinLater <= 0) {
+      return 'Notification should be set at least 5 minutes ahead of time';
+    }
+
     return '';
   };
 
@@ -207,6 +218,7 @@ export default function TaskEditorScreen({ route, navigation }) {
       content,
       trigger,
       mode,
+      location: locationName !== 'Pick a location' ? locationName: '',
       taskDone: false,
       notificationDate: date.valueOf(),
       createdAt: Date.now(),
@@ -219,8 +231,6 @@ export default function TaskEditorScreen({ route, navigation }) {
     }
 
     dispatch(addTask(task));
-
-    console.log(task);
 
     navigation.popToTop();
   };
@@ -247,7 +257,8 @@ export default function TaskEditorScreen({ route, navigation }) {
         <View style={styles.inputsBody}>
           <TextInput 
           onChangeText={setTitle} 
-          value={title} placeholder='Title' 
+          value={title} 
+          placeholder='Title' 
           style={styles.textInputStyle} 
           maxLength={maxCharacters}
           ></TextInput>
@@ -306,13 +317,12 @@ export default function TaskEditorScreen({ route, navigation }) {
           onPress={showDatePicker} 
           title={date.toLocaleDateString()} 
           iconName='calendar-sharp' 
-          color='#0096ff' 
           disabled={mode === MODES_ENUM.DAILY || mode === MODES_ENUM.WEEKLY}
           ></IconTextButton>
 
-          <IconTextButton onPress={showTimePicker} title={date.toLocaleTimeString()} iconName='time' color='#0096ff'></IconTextButton>
+          <IconTextButton onPress={showTimePicker} title={date.toLocaleTimeString()} iconName='time'></IconTextButton>
 
-          <IconTextButton onPress={() => navigation.navigate('Geolocation')} title={locationName} iconName='location-sharp' color='#0096ff'></IconTextButton>
+          <IconTextButton onPress={() => navigation.navigate('Geolocation')} title={locationName} iconName='location-sharp'></IconTextButton>
 
           <View style={styles.switchBody}>
             <View style={{flex: 1, flexDirection: 'row',}}>

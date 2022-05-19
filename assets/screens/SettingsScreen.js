@@ -81,7 +81,7 @@ export default function SettingsScreen({ navigation }) {
       </View>
 
       {/* <View style={styles.accessibilityContainer}>
-        <Text style={{fontFamily: 'poppins-bold'}}>THEMES</Text>
+        <Text style={{fontFamily: 'bold-font'}}>THEMES</Text>
 
         <ItemPicker itemList={items} onPress={(item) => console.log(item)}></ItemPicker>
       </View> */}
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 30,
     fontWeight: 'bold',
-    fontFamily: 'poppins-regular',
+    fontFamily: 'regular-font',
     color: 'black',
   },
   iconButton: {
@@ -122,8 +122,8 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 10,
     textAlign: 'center',
-    fontSize: 18,
-    fontFamily: 'poppins-bold',
+    fontSize: 20,
+    fontFamily: 'bold-font',
     color: 'white',
   }
 });

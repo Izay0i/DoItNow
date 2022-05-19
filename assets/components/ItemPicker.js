@@ -17,7 +17,7 @@ export default function ItemPicker({ itemList, onPress }) {
     setItems={setItems} 
     onSelectItem={(item) => onPress(item)} 
     style={{elevation: 2, borderWidth: 0,}} 
-    textStyle={{fontFamily: 'poppins-regular',}}
+    textStyle={{fontFamily: 'regular-font',}}
     ></DropDownPicker>
   );
 }

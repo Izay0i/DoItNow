@@ -5,9 +5,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { deleteTask, markTaskAsDone } from '../redux/actions';
 import { unsubscribeLocalNotificationAsync } from '../functions/async-notification-functions';
 import { generateDescription } from '../functions/helper-functions';
+import TaskListItem, { ITEM_HEIGHT } from '../components/TaskListItem';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
-import TaskListItem, { ITEM_HEIGHT } from '../components/TaskListItem';
+
 
 const CircleButton = ({ onPress, iconName, backgroundColor }) => {
   return (
@@ -143,12 +144,6 @@ const styles = StyleSheet.create({
   buttonsContainer: {
     flex: 1,
   },
-  modalContainer: {
-    borderRadius: 10,
-    backgroundColor: '#ffffff',
-    shadowColor: '#000000',
-    elevation: 16,
-  },
   modalViewContainer: {
     flex: 1,
     justifyContent: 'space-evenly',
@@ -157,17 +152,17 @@ const styles = StyleSheet.create({
     fontSize: 24,
     paddingHorizontal: 18,
     fontWeight: 'bold',
-    fontFamily: 'poppins-regular',
+    fontFamily: 'regular-font',
     color: '#000000',
   },
   text: {
     fontSize: 24,
-    fontFamily: 'poppins-regular',
+    fontFamily: 'regular-font',
     textAlign: 'center',
   },
   taskDesText: {
     fontSize: 20,
-    fontFamily: 'poppins-regular',
+    fontFamily: 'regular-font',
   },
   circleButton: {
     flex: 1,

@@ -248,7 +248,7 @@ export default function TaskEditorScreen({ route, navigation }) {
             <View style={styles.centeredModalBody}>
               <View style={styles.modalBody}>
                 <Text style={{textAlign: 'center', ...styles.text}}>{generateWarningText()}</Text>
-                <Button title='Close warning' onPress={() => setValidatorModalVisible(!validatorModalVisible)}></Button>
+                <Button title='Dismiss' onPress={() => setValidatorModalVisible(!validatorModalVisible)}></Button>
               </View>
             </View>
           </BlurView>
@@ -286,7 +286,7 @@ export default function TaskEditorScreen({ route, navigation }) {
               onChangeValue={(value) => setMode(value)}
               onOpen={onModeOpen}  
               style={{borderWidth: 0,}} 
-              textStyle={{fontFamily: 'poppins-regular',}}
+              textStyle={{fontFamily: 'regular-font',}}
               ></DropDownPicker>
             </View>
 
@@ -305,7 +305,7 @@ export default function TaskEditorScreen({ route, navigation }) {
               onOpen={onDayOpen}  
               disabled={mode !== MODES_ENUM.WEEKLY} 
               style={{borderWidth: 0, backgroundColor: mode !== MODES_ENUM.WEEKLY ? '#999999' : '#ffffff'}} 
-              textStyle={{fontFamily: 'poppins-regular',}} 
+              textStyle={{fontFamily: 'regular-font',}} 
               listMode='MODAL'
               ></DropDownPicker>
             </View>
@@ -335,23 +335,21 @@ export default function TaskEditorScreen({ route, navigation }) {
             </View>
             
             <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',}}>
-              <Text style={styles.text}>Is urgent</Text>
+              <Text style={styles.text}>Toggle urgent mode</Text>
               <Switch onValueChange={toggleSwitch} value={isUrgent}></Switch>
             </View>
           </View>
 
           <IconTextButton onPress={modifyTaskAsync} title={routeData ? 'Edit Task' : 'Add Task'} iconName='cube' color='#ffa500'></IconTextButton>
 
-          {
-            show && 
-            <DateTimePicker 
-            testID='dateTimePicker' 
-            value={date} 
-            mode={timeMode} 
-            is24Hour={true} 
-            onChange={onChange}
-            ></DateTimePicker>
-          }
+          {show && 
+          <DateTimePicker 
+          testID='dateTimePicker' 
+          value={date} 
+          mode={timeMode} 
+          is24Hour={true} 
+          onChange={onChange}
+          ></DateTimePicker>}
         </View>
       </View>
     </DismissKeyboard>
@@ -372,6 +370,7 @@ const styles = StyleSheet.create({
     margin: 32,
     padding: 32,
     alignItems: 'center',
+    justifyContent: 'space-between',
     borderRadius: 10,
     backgroundColor: '#ffffff',
     shadowColor: '#000000',
@@ -397,6 +396,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: 16,
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
   textInputStyle: {
     padding: 16,
@@ -413,12 +413,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   text: {
-    fontFamily: 'poppins-regular',
+    fontFamily: 'regular-font',
     fontSize: 16,
   },
   iconTextButtonText: {
     flex: 1,
-    fontFamily: 'poppins-regular',
+    fontFamily: 'regular-font',
     fontSize: 14,
     textAlign: 'center',
   }

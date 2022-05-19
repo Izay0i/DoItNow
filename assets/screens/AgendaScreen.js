@@ -9,14 +9,23 @@ import { generateDescription } from '../functions/helper-functions';
 import TaskListItem from '../components/TaskListItem';
 
 export default function AgendaScreen({ navigation }) {
+  const [selected, setSelected] = useState('');
   const [schedules, setSchedules] = useState([]);
   const [item, setItem] = useState([]);
 
   const { tasks } = useSelector(state => state.tasksReducer);
 
+  const markedDate = useMemo(() => {
+    return {
+      [selected]: {
+        selected: true,
+      }
+    };
+  }, [selected]);
+
   const bottomSheetModalRef = useRef(null);
 
-  const snapPoints = useMemo(() => ['50%'], []);
+  const snapPoints = useMemo(() => ['60%'], []);
 
   const handlePresentModalPress = useCallback((item) => {
     bottomSheetModalRef.current?.present();
@@ -28,6 +37,7 @@ export default function AgendaScreen({ navigation }) {
   ), []);
 
   const getTasks = useCallback((day) => {
+    setSelected(day.dateString);
     setSchedules(getTasksByDate(tasks, day));
   }, [schedules]);
 
@@ -41,6 +51,7 @@ export default function AgendaScreen({ navigation }) {
     <>
       <View style={styles.body}>
         <Calendar 
+        markedDates={markedDate} 
         enableSwipeMonths={true} 
         onDayPress={getTasks}
         ></Calendar>
@@ -78,7 +89,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   text: {
-    fontFamily: 'poppins-regular',
+    fontFamily: 'regular-font',
     fontSize: 24,
     textAlign: 'center',
   },

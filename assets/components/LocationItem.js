@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
   },
   textStyle: {
-    fontFamily: 'poppins-regular',
+    fontFamily: 'regular-font',
     fontSize: 12,
     textAlign: 'left',
   }

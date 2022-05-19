@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   text: {
-    fontFamily: 'poppins-regular',
+    fontFamily: 'regular-font',
     fontSize: 20,
     marginRight: 8,
   }

@@ -38,8 +38,9 @@ export default function App() {
       try {
         await SplashScreen.preventAutoHideAsync();
         await Font.loadAsync({
-          'poppins-bold': require('./assets/fonts/poppins-bold.ttf'),
-          'poppins-regular': require('./assets/fonts/poppins-regular.ttf'),
+          'bold-font': require('./assets/fonts/Roboto/Roboto-Bold.ttf'),
+          'regular-font': require('./assets/fonts/Roboto/Roboto-Regular.ttf'),
+          'highlight-font': require('./assets/fonts/Permanent_Marker/PermanentMarker-Regular.ttf'),
         });
       }
       catch (e) {
@@ -78,23 +79,23 @@ export default function App() {
           <BottomSheetModalProvider>
             <View onLayout={onLayoutRootView}></View>
             <NavigationContainer>
-              <Tab.Navigator initialRouteName='Main' screenOptions={{ 
+              <Tab.Navigator initialRouteName='Home' screenOptions={{ 
                 headerStyle: {
                   backgroundColor: '#ffffff',
                 },
                 headerTitleStyle: {
                   color: '#000000', 
-                  fontFamily: 'poppins-bold',
+                  fontFamily: 'highlight-font',
                   fontSize: 32,
                 },
                 headerTitleAlign: 'center',
                 tabBarShowLabel: false,
               }}>
-                <Tab.Screen name='Home' component={MainScreen} options={{ 
-                  tabBarIcon: ({focused}) => (<Ionicons name={focused ? 'home' : 'home-outline'} size={42} color='black' />) 
-                }}></Tab.Screen>
                 <Tab.Screen name='Schedules' component={AgendaScreen} options={{ 
                   tabBarIcon: ({focused}) => (<Ionicons name={focused ? 'calendar' : 'calendar-outline'} size={42} color='black' />) 
+                }}></Tab.Screen>
+                <Tab.Screen name='Home' component={MainScreen} options={{ 
+                  tabBarIcon: ({focused}) => (<Ionicons name={focused ? 'home' : 'home-outline'} size={42} color='black' />) 
                 }}></Tab.Screen>
                 <Tab.Screen name='Settings' component={SettingsScreen} options={{ 
                   tabBarIcon: ({focused}) => (<Ionicons name={focused ? 'settings' : 'settings-outline'} size={42} color='black' />) 

@@ -107,7 +107,14 @@ export default function GeolocationScreen({ navigation }) {
 
   const getAddressFromCoordinate = useCallback(async (latitude, longitude) => {
     const location = await mapViewRef.current?.addressForCoordinate({latitude, longitude});
-    const locationName = location.subThoroughfare + ' ' + location.thoroughfare + ' ' + location.subAdministrativeArea + ' ' + location.administrativeArea;
+    const locationName = [
+      location.subThoroughfare, 
+      location.thoroughfare, 
+      location.subAdministrativeArea, 
+      location.administrativeArea
+    ]
+    .filter(str => str !== null)
+    .join(' ');
     setLocationName(locationName);
   }, [locationName]);
 
@@ -123,7 +130,8 @@ export default function GeolocationScreen({ navigation }) {
       return;
     }
 
-    let locations = await fetch(`${LOCATION_AUTOCOMPLETE_API}&q=${locationSearch}`, {
+    const MAX_LIMIT = 10;
+    let locations = await fetch(`${LOCATION_AUTOCOMPLETE_API}&q=${locationSearch}&limit=${MAX_LIMIT}`, {
       method: 'GET',
     });
 
@@ -203,6 +211,12 @@ const styles = StyleSheet.create({
   },
   controlsBody: {
     flex: 1,
+    margin: 6,
+    padding: 10,
+    borderWidth: 2,
+    borderRadius: 10,
+    borderColor: '#999999',
+    backgroundColor: '#ffffff',
     justifyContent: 'space-between',
   },
   textInputStyle: {
@@ -213,7 +227,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
   },
   textStyle: {
-    fontFamily: 'poppins-regular',
+    fontFamily: 'regular-font',
     fontSize: 16,
     textAlign: 'left',
   }

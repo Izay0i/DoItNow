@@ -5,12 +5,13 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 
 export const ITEM_HEIGHT = 24;
 
-const TaskListItem = ({ item, onPress }) => {
+const TaskListItem = ({ item, onPress, iconsVisible = true }) => {
   return (
     <View style={styles.item}>
       <TouchableOpacity style={styles.body}>
         <Text numberOfLines={1} style={styles.text}>{item.content.title}</Text>
         
+        {iconsVisible && 
         <View style={styles.iconsBody}>
           <Ionicons 
           name={item.taskDone ? 'checkmark-done-sharp' : 'checkmark-sharp'} 
@@ -19,7 +20,7 @@ const TaskListItem = ({ item, onPress }) => {
           ></Ionicons>
           {item.childId !== '' && <Ionicons name='alert-circle' size={24} color='#ffa500'></Ionicons>}
           {/* <Ionicons name='warning-sharp' size={24} color='#ff0000'></Ionicons> */}
-        </View>
+        </View>}
       </TouchableOpacity>
 
       <TouchableOpacity onPress={onPress} style={{justifyContent: 'center',}}>
@@ -48,6 +49,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     backgroundColor: '#ffffff',
+    elevation: 2,
   },
   text: {
     fontFamily: 'poppins-regular',

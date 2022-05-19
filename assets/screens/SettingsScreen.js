@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Image } from 'react-native';
-import { ANDROID_CLIENT_ID, EXPO_CLIENT_ID, USER_INFO_API } from '../constants/app-constants';
+import { ANDROID_CLIENT_ID, EXPO_CLIENT_ID, USER_INFO_API } from '@env';
 
 import * as Google from 'expo-auth-session/providers/google';
 

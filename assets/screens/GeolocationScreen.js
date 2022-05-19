@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { View, StyleSheet, Dimensions, LogBox, Text, Button, TextInput, FlatList } from 'react-native';
-import { LOCATION_AUTOCOMPLETE_API } from '../constants/app-constants';
+import { LOCATION_AUTOCOMPLETE_API } from '@env';
 
 import * as Location from 'expo-location';
 
@@ -32,7 +32,7 @@ const AutocompleteDropdown = ({data, text, placeholderText, renderItem, keyExtra
       extraData={data} 
       renderItem={renderItem} 
       keyExtractor={keyExtractor} 
-      style={{position: 'absolute', width: '100%', top: 55}}
+      style={{position: 'absolute', width: '100%', maxHeight: '50%', top: 55}}
       ></FlatList>}
     </View>
   );
@@ -43,7 +43,8 @@ export default function GeolocationScreen({ navigation }) {
     const getLocationAsync = async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        setLocation('Permission to access location was denied');
+        setHasPermission(false);
+        navigation.goBack();
       }
       else {
         setHasPermission(true);
@@ -122,7 +123,7 @@ export default function GeolocationScreen({ navigation }) {
       return;
     }
 
-    let locations = await fetch(`${LOCATION_AUTOCOMPLETE_API}&q=${locationSearch}&limit=5`, {
+    let locations = await fetch(`${LOCATION_AUTOCOMPLETE_API}&q=${locationSearch}`, {
       method: 'GET',
     });
 

@@ -136,7 +136,7 @@ export default function TaskEditorScreen({ route, navigation }) {
     const timeFiveMinLater = Date.now() + 300 * 1000;
 
     if (isUrgent && timeSet - timeFiveMinLater <= 0) {
-      return 'Notification should be set at least 5 minutes ahead of time';
+      return 'Notification should be set at least 5 minutes in advance';
     }
 
     return '';

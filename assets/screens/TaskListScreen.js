@@ -4,7 +4,7 @@ import { BottomSheetModal, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 import { useDispatch, useSelector } from 'react-redux';
 import { deleteTask, markTaskAsDone } from '../redux/actions';
 import { unsubscribeLocalNotificationAsync } from '../functions/async-notification-functions';
-import { generateTriggerDescription } from '../functions/helper-functions';
+import { generateDescription } from '../functions/helper-functions';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
 import TaskListItem, { ITEM_HEIGHT } from '../components/TaskListItem';
@@ -39,12 +39,6 @@ export default function TaskListScreen({ navigation }) {
   const handlePresentModalPress = useCallback((item) => {
     bottomSheetModalRef.current?.present();
     setItem(item);
-
-    //console.log(item);
-  }, []);
-
-  const handleSheetChanges = useCallback((index) => {
-    //console.log('handleSheetChanges', index);
   }, []);
 
   const renderItem = useCallback(({ item }) => (
@@ -96,7 +90,7 @@ export default function TaskListScreen({ navigation }) {
 
           {tasks.length === 0 && 
           <View style={{flex: 1,}}>
-            <Text style={{...styles.text, color: '#999999',}}>Get started by clicking the button below</Text>
+            <Text style={{...styles.text, color: '#999999',}}>Get started by pressing the button below</Text>
           </View>}
         </View>
 
@@ -112,16 +106,11 @@ export default function TaskListScreen({ navigation }) {
       <BottomSheetModal 
       ref={bottomSheetModalRef} 
       snapPoints={snapPoints} 
-      onChange={handleSheetChanges} 
-      style={styles.modalContainer} 
       backdropComponent={backdropComponent}
       >
         <View style={styles.modalViewContainer}>
           <View style={{flex: 2, padding: 16,}}>
-            <Text style={styles.taskDesText}>Title: {item.content?.title}</Text>
-            <Text style={styles.taskDesText}>Description: {item.content?.body}</Text>
-            <Text style={styles.taskDesText}>Triggers on {generateTriggerDescription(item.mode, item.trigger)}</Text>
-            {item.location !== '' && <Text style={styles.taskDesText}>At {item.location}</Text>}
+            <Text style={styles.taskDesText}>{generateDescription(item)}</Text>
           </View>
 
           <View style={{flex: 1,}}>
@@ -177,7 +166,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   taskDesText: {
-    fontSize: 24,
+    fontSize: 20,
     fontFamily: 'poppins-regular',
   },
   circleButton: {

@@ -1,27 +1,16 @@
-export const ANDROID_CLIENT_ID = '381369859941-4s3bblmr6usua706k36l5mli5qfqdp9h.apps.googleusercontent.com';
-export const EXPO_CLIENT_ID = '381369859941-23i5j8skkqvrgbj7339gf2i692i7o9ln.apps.googleusercontent.com';
-
-export const USER_INFO_API = 'https://www.googleapis.com/userinfo/v2/me';
-
-export const UNFINISHED_TASKS = 'UnfininishedTasksList';
-export const FINISHED_TASKS = 'FinishedTasksList';
-
-const ACCESS_TOKEN = 'pk.55d35cf09e140f6340d1d7e21f6eafda';
-export const LOCATION_AUTOCOMPLETE_API = `https://api.locationiq.com/v1/autocomplete.php?key=${ACCESS_TOKEN}`;
-
 export const MODES_ENUM = {
-    DATE_TIME: 'dateTime',
-    DAILY: 'daily',
-    WEEKLY: 'weekly',
-    YEARLY: 'yearly',
+  DATE_TIME: 'dateTime',
+  DAILY: 'daily',
+  WEEKLY: 'weekly',
+  YEARLY: 'yearly',
 };
 
 export const EXPO_WEEKDAYS_ENUM = {
-    SUNDAY: 1,
-    MONDAY: 2,
-    TUESDAY: 3,
-    WEDNESDAY: 4,
-    THURSDAY: 5,
-    FRIDAY: 6,
-    SATURDAY: 7,
+  SUNDAY: 1,
+  MONDAY: 2,
+  TUESDAY: 3,
+  WEDNESDAY: 4,
+  THURSDAY: 5,
+  FRIDAY: 6,
+  SATURDAY: 7,
 };

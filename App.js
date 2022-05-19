@@ -4,6 +4,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { Provider } from 'react-redux';
+import { store, persistor } from './assets/redux/store';
+import { PersistGate } from 'redux-persist/es/integration/react';
 
 import 'react-native-gesture-handler';
 
@@ -70,33 +73,37 @@ export default function App() {
 
   return (
     <GestureHandlerRootView style={{flex: 1,}}>
-      <BottomSheetModalProvider>
-        <View onLayout={onLayoutRootView}></View>
-        <NavigationContainer>
-          <Tab.Navigator initialRouteName='Main' screenOptions={{ 
-            headerStyle: {
-              backgroundColor: '#ffffff',
-            },
-            headerTitleStyle: {
-              color: '#000000', 
-              fontFamily: 'poppins-bold',
-              fontSize: 32,
-            },
-            headerTitleAlign: 'center',
-            tabBarShowLabel: false,
-          }}>
-            <Tab.Screen name='Home' component={MainScreen} options={{ 
-              tabBarIcon: ({focused}) => (<Ionicons name={focused ? 'home' : 'home-outline'} size={42} color='black' />) 
-            }}></Tab.Screen>
-            <Tab.Screen name='Schedules' component={AgendaScreen} options={{ 
-              tabBarIcon: ({focused}) => (<Ionicons name={focused ? 'calendar' : 'calendar-outline'} size={42} color='black' />) 
-            }}></Tab.Screen>
-            <Tab.Screen name='Settings' component={SettingsScreen} options={{ 
-              tabBarIcon: ({focused}) => (<Ionicons name={focused ? 'settings' : 'settings-outline'} size={42} color='black' />) 
-            }}></Tab.Screen>
-          </Tab.Navigator>
-        </NavigationContainer>
-      </BottomSheetModalProvider>
+      <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <BottomSheetModalProvider>
+            <View onLayout={onLayoutRootView}></View>
+            <NavigationContainer>
+              <Tab.Navigator initialRouteName='Main' screenOptions={{ 
+                headerStyle: {
+                  backgroundColor: '#ffffff',
+                },
+                headerTitleStyle: {
+                  color: '#000000', 
+                  fontFamily: 'poppins-bold',
+                  fontSize: 32,
+                },
+                headerTitleAlign: 'center',
+                tabBarShowLabel: false,
+              }}>
+                <Tab.Screen name='Home' component={MainScreen} options={{ 
+                  tabBarIcon: ({focused}) => (<Ionicons name={focused ? 'home' : 'home-outline'} size={42} color='black' />) 
+                }}></Tab.Screen>
+                <Tab.Screen name='Schedules' component={AgendaScreen} options={{ 
+                  tabBarIcon: ({focused}) => (<Ionicons name={focused ? 'calendar' : 'calendar-outline'} size={42} color='black' />) 
+                }}></Tab.Screen>
+                <Tab.Screen name='Settings' component={SettingsScreen} options={{ 
+                  tabBarIcon: ({focused}) => (<Ionicons name={focused ? 'settings' : 'settings-outline'} size={42} color='black' />) 
+                }}></Tab.Screen>
+              </Tab.Navigator>
+            </NavigationContainer>
+          </BottomSheetModalProvider>
+        </PersistGate>
+      </Provider>
     </GestureHandlerRootView>
   );
 }

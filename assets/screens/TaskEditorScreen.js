@@ -1,11 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, StyleSheet, Keyboard, Text, TextInput, Modal, Button, Switch, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
+import { View, ScrollView, StyleSheet, Keyboard, Text, TextInput, Modal, Button, Switch, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { useDispatch } from 'react-redux';
 import { addTask, deleteTask } from '../redux/actions';
 import { subscribeLocalNotificationAsync, unsubscribeLocalNotificationAsync } from '../functions/async-notification-functions';
-import { generateTriggerDescription } from '../functions/helper-functions';
-import { MODES_ENUM, EXPO_WEEKDAYS_ENUM } from '../constants/app-constants';
+import { MODES_ENUM, EXPO_WEEKDAYS_ENUM, MIN_DATE, CHANNEL_ID } from '../constants/app-constants';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
 import DropDownPicker from 'react-native-dropdown-picker';
@@ -31,17 +30,22 @@ const IconTextButton = ({ onPress, title, iconName, color = '#ffffff', disabled 
 export default function TaskEditorScreen({ route, navigation }) {
   useEffect(() => {
     if (routeData) {
-      setTitle(routeData.content.title);
-      setDescription(routeData.content.body);
+      const { title, body } = routeData.content;
+      const { childId, mode, notificationDate, location } = routeData.content.data;
 
-      setIsUrgent(routeData.childId !== '');
+      setTitle(title);
+      setDescription(body);
 
-      setValue(routeData.mode);
-      setDayValue(routeData.trigger.weekday ? routeData.trigger.weekday : days[0].value);
+      setIsUrgent(childId !== '');
 
-      setDate(new Date(routeData.notificationDate));
+      setValue(mode);
 
-      setLocationName(routeData.location !== '' ? routeData.location : locationName);
+      const { weekday } = routeData.trigger;
+      setDayValue(weekday ? weekday : days[0].value);
+
+      setDate(new Date(notificationDate));
+
+      setLocationName(location !== '' ? location : locationName);
     }
 
     if (route.params?.locationName) {
@@ -86,6 +90,10 @@ export default function TaskEditorScreen({ route, navigation }) {
 
   const [day, setDay] = useState(EXPO_WEEKDAYS_ENUM.SUNDAY);
 
+  const [minimumDate, setMinimumDate] = useState(() => {
+    const NUMBER_OF_DAYS = 3;
+    return new Date().setDate(new Date().getDate() + NUMBER_OF_DAYS);
+  });
   const [date, setDate] = useState(new Date());
   const [timeMode, setTimeMode] = useState('date');
   const [show, setShow] = useState(false);
@@ -136,14 +144,17 @@ export default function TaskEditorScreen({ route, navigation }) {
     const timeFiveMinLater = Date.now() + 300 * 1000;
 
     if (isUrgent && timeSet - timeFiveMinLater <= 0) {
-      return 'Notification should be set at least 5 minutes in advance';
+      return 'Notification should be set at least 3 days in advance';
     }
 
     return '';
   };
 
   const createTrigger = () => {
-    let trigger = { repeats: mode !== MODES_ENUM.DATE_TIME, };
+    let trigger = { 
+      channelId: CHANNEL_ID,
+      repeats: mode !== MODES_ENUM.DATE_TIME, 
+    };
 
     const dateAttrib = date.setSeconds(0);
     const dayAttrib = date.getDate();
@@ -176,21 +187,31 @@ export default function TaskEditorScreen({ route, navigation }) {
   };
 
   const createFrequentReminder = async (trig) => {
-    const triggerDescription = generateTriggerDescription(mode, trig);
+    if (!isUrgent || mode !== MODES_ENUM.DATE_TIME) {
+      return '';
+    }
 
     const content = {
-      title: `[ALERT] Upcoming event: ${title}`,
-      body: `On ${triggerDescription}`,
+      title: `[ALERT] Upcoming task: ${title}`,
+      body: `On ${trig.dateStr}`,
     };
 
     //1/3 of the duration of the parent notification
-    const minutesTillDeadline = date.getMinutes() - new Date().getMinutes();
-    const seconds = Math.floor((minutesTillDeadline * 60) / 3);
+    const scheduledDateInMS = date.getTime();
+    const todayInMS = Date.now();
+    const difference = scheduledDateInMS - todayInMS;
+    const diffInSeconds = Math.floor(difference / 1000);
+    const interval = diffInSeconds / 3; 
 
-    console.log(minutesTillDeadline * 60);
+    // console.log('[SCHEDULED TIMESTAMP]', scheduledDateInMS);
+    // console.log('[TODAY TIMESTAMP]', todayInMS);
+    // console.log('[DIFF]', difference);
+    // console.log('[DIFF IN SEC]', diffInSeconds);
+    // console.log('[IN 1/3 SEC]', interval);
 
     const trigger = {
-      seconds,
+      channelId: CHANNEL_ID,
+      seconds: interval,
       repeats: true,
     };
 
@@ -205,28 +226,37 @@ export default function TaskEditorScreen({ route, navigation }) {
       return;
     }
 
-    const content = {
+    const trigger = createTrigger();
+
+    const notificationBody = {
       title,
       body: description,
     };
 
-    const trigger = createTrigger();
+    const content = {
+      title,
+      body: description,
+      data: {
+        id: await subscribeLocalNotificationAsync(notificationBody, trigger),
+        childId: await createFrequentReminder(trigger),
+        mode,
+        location: locationName !== 'Pick a location' ? locationName: '',
+        taskDone: false,
+        notificationDate: date.valueOf(),
+        createdAt: Date.now(),
+      },
+    };
 
     const task = {
-      id: await subscribeLocalNotificationAsync(content, trigger),
-      childId: isUrgent ? await createFrequentReminder(trigger) : '',
       content,
       trigger,
-      mode,
-      location: locationName !== 'Pick a location' ? locationName: '',
-      taskDone: false,
-      notificationDate: date.valueOf(),
-      createdAt: Date.now(),
     };
 
     if (routeData) {
-      await unsubscribeLocalNotificationAsync(routeData.childId);
-      await unsubscribeLocalNotificationAsync(routeData.id);
+      const { id, childId } = routeData.content.data;
+
+      await unsubscribeLocalNotificationAsync(childId);
+      await unsubscribeLocalNotificationAsync(id);
       dispatch(deleteTask(routeData));
     }
 
@@ -237,7 +267,7 @@ export default function TaskEditorScreen({ route, navigation }) {
 
   return (
     <DismissKeyboard>
-      <View style={styles.body}>
+      <ScrollView nestedScrollEnabled={true} contentContainerStyle={styles.body}>
         <Modal 
         animationType='fade' 
         transparent={true} 
@@ -286,7 +316,8 @@ export default function TaskEditorScreen({ route, navigation }) {
               onChangeValue={(value) => setMode(value)}
               onOpen={onModeOpen}  
               style={{borderWidth: 0,}} 
-              textStyle={{fontFamily: 'regular-font',}}
+              textStyle={{fontFamily: 'regular-font',}} 
+              listMode='SCROLLVIEW'
               ></DropDownPicker>
             </View>
 
@@ -306,7 +337,7 @@ export default function TaskEditorScreen({ route, navigation }) {
               disabled={mode !== MODES_ENUM.WEEKLY} 
               style={{borderWidth: 0, backgroundColor: mode !== MODES_ENUM.WEEKLY ? '#999999' : '#ffffff'}} 
               textStyle={{fontFamily: 'regular-font',}} 
-              listMode='MODAL'
+              listMode='SCROLLVIEW'
               ></DropDownPicker>
             </View>
           </View>
@@ -336,7 +367,7 @@ export default function TaskEditorScreen({ route, navigation }) {
             
             <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',}}>
               <Text style={styles.text}>Toggle urgent mode</Text>
-              <Switch onValueChange={toggleSwitch} value={isUrgent}></Switch>
+              <Switch onValueChange={toggleSwitch} value={isUrgent} disabled={mode !== MODES_ENUM.DATE_TIME}></Switch>
             </View>
           </View>
 
@@ -348,10 +379,11 @@ export default function TaskEditorScreen({ route, navigation }) {
           value={date} 
           mode={timeMode} 
           is24Hour={true} 
+          minimumDate={isUrgent ? minimumDate : MIN_DATE} 
           onChange={onChange}
           ></DateTimePicker>}
         </View>
-      </View>
+      </ScrollView>
     </DismissKeyboard>
   );
 }
@@ -399,6 +431,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   textInputStyle: {
+    fontFamily: 'regular-font',
     padding: 16,
     marginBottom: 4,
     backgroundColor: '#ffffff',

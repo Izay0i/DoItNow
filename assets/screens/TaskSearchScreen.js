@@ -1,40 +1,27 @@
-import React, { useState, useCallback, useMemo, useRef } from 'react';
-import { View, StyleSheet, FlatList, TouchableOpacity, Text, TextInput } from 'react-native';
+import React, { useState, useCallback, useRef, useMemo } from "react";
+import { View, Keyboard, StyleSheet, Text, TextInput, TouchableWithoutFeedback, FlatList } from 'react-native';
 import { BottomSheetModal, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from "react-redux";
 import { deleteTask, markTaskAsDone } from '../redux/actions';
 import { unsubscribeLocalNotificationAsync } from '../functions/async-notification-functions';
-import { generateDescription } from '../functions/helper-functions';
-import TaskListItem, { ITEM_HEIGHT } from '../components/TaskListItem';
+import { generateDescription, getTaskByTitle } from "../functions/helper-functions";
+import TaskListItem, { ITEM_HEIGHT } from "../components/TaskListItem";
 
-import TransparentTextButton from '../components/TransparentTextButton';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import TransparentTextButton from "../components/TransparentTextButton";
 
-const CircleButton = ({ onPress, iconName, backgroundColor }) => {
-  return (
-    <TouchableOpacity onPress={onPress} style={{backgroundColor, ...styles.circleButton}}>
-      <Ionicons name={iconName} size={24} color='#ffffff'></Ionicons>
-    </TouchableOpacity>
-  );
-};
+export default function TaskSearchScreen({ navigation }) {
+  const [name, setName] = useState('');
+  const [maxCharacters, setMaxCharacters] = useState(64);
 
-export default function TaskListScreen({ navigation }) {
+  const [displayText, setDisplayText] = useState('Start searching');
+
+  const [tasksSearched, setTasksSearched] = useState([]);
+
   const [item, setItem] = useState({});
 
   const { tasks } = useSelector(state => state.tasksReducer);
 
   const dispatch = useDispatch();
-
-  const bottomSheetModalRef = useRef(null);
-
-  const snapPoints = useMemo(() => ['85%'], []);
-
-  const handlePresentModalPress = useCallback((item) => {
-    bottomSheetModalRef.current?.present();
-    setItem(item);
-
-    //console.log(item);
-  }, []);
 
   const renderItem = useCallback(({ item }) => (
     <TaskListItem item={item} onPress={() => handlePresentModalPress(item)}></TaskListItem>
@@ -48,9 +35,32 @@ export default function TaskListScreen({ navigation }) {
     index,
   }), []);
 
+  const bottomSheetModalRef = useRef(null);
+
+  const snapPoints = useMemo(() => ['85%'], []);
+
+  const handlePresentModalPress = useCallback((item) => {
+    bottomSheetModalRef.current?.present();
+    setItem(item);
+  }, []);
+
   const backdropComponent = useCallback((backdropProps) => (
     <BottomSheetBackdrop {...backdropProps} appearsOnIndex={0} disappearsOnIndex={-1}></BottomSheetBackdrop>
   ), []);
+
+  const getByTitle = (e) => {
+    const { text } = e.nativeEvent;
+    if (text.length === 0) {
+      setDisplayText('Start searching');
+      setTasksSearched([]);
+    }
+    else {
+      setTasksSearched(getTaskByTitle(tasks, text));
+      if (tasksSearched.length === 0) {
+        setDisplayText('Results not found');
+      }
+    }
+  };
 
   const editTask = () => {
     navigation.navigate('TaskEditor', {item});
@@ -61,6 +71,7 @@ export default function TaskListScreen({ navigation }) {
     await unsubscribeLocalNotificationAsync(item.content?.data?.childId);
     await unsubscribeLocalNotificationAsync(item.content?.data?.id);
     dispatch(markTaskAsDone(item));
+    setTasksSearched([]);
     bottomSheetModalRef.current?.dismiss();
   };
 
@@ -68,47 +79,45 @@ export default function TaskListScreen({ navigation }) {
     await unsubscribeLocalNotificationAsync(item.content?.data?.childId);
     await unsubscribeLocalNotificationAsync(item.content?.data?.id);
     dispatch(deleteTask(item));
+    setTasksSearched([]);
     bottomSheetModalRef.current?.dismiss();
   };
 
   return (
     <>
-      <View style={styles.body}>
+      <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
         <View style={styles.body}>
-          <FlatList 
-          data={tasks} 
-          renderItem={renderItem} 
-          keyExtractor={keyExtractor} 
-          extraData={tasks} 
-          getItemLayout={getItemLayout}
-          ></FlatList>
+          <TextInput 
+          onChangeText={setName} 
+          value={name} 
+          placeholder='Title' 
+          style={styles.textInputStyle} 
+          maxLength={maxCharacters} 
+          onChange={(e) => getByTitle(e)} 
+          onSubmitEditing={(e) => getByTitle(e)}
+          ></TextInput>
 
-          {tasks.length === 0 && 
-          <View style={{flex: 1,}}>
-            <Text style={{...styles.text, color: '#999999',}}>Get started by pressing the button below</Text>
-          </View>}
+          <View style={styles.body}>
+            <FlatList 
+            data={tasksSearched} 
+            extraData={tasksSearched} 
+            renderItem={renderItem} 
+            keyExtractor={keyExtractor} 
+            getItemLayout={getItemLayout}
+            ></FlatList>
+
+            {tasksSearched.length === 0 && 
+            <View style={{flex: 1,}}>
+              <Text style={{...styles.textStyle, color: '#999999'}}>{displayText}</Text>
+            </View>}
+          </View>
         </View>
-
-        <View style={styles.buttonsContainer}>
-          <CircleButton 
-          iconName='search-outline' 
-          backgroundColor='#4285f4' 
-          onPress={() => navigation.navigate('TaskSearch')}
-          ></CircleButton>
-
-          <CircleButton 
-          iconName='add-outline' 
-          backgroundColor='#ffa500' 
-          onPress={() => navigation.navigate('TaskEditor')}
-          ></CircleButton>
-        </View>
-      </View>
+      </TouchableWithoutFeedback>
 
       <BottomSheetModal 
       ref={bottomSheetModalRef} 
       snapPoints={snapPoints} 
-      backdropComponent={backdropComponent}
-      >
+      backdropComponent={backdropComponent}>
         <View style={styles.modalViewContainer}>
           <View style={{flex: 2, padding: 16,}}>
             <Text style={styles.taskDesText}>{generateDescription(item)}</Text>
@@ -139,38 +148,25 @@ export default function TaskListScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   body: {
-    flex: 4,
-  },
-  buttonsContainer: {
     flex: 1,
-    flexDirection: 'row',
   },
   modalViewContainer: {
     flex: 1,
     justifyContent: 'space-evenly',
   },
-  title: {
-    fontSize: 24,
-    paddingHorizontal: 18,
-    fontWeight: 'bold',
+  textInputStyle: {
     fontFamily: 'regular-font',
-    color: '#000000',
+    padding: 16,
+    marginBottom: 4,
+    backgroundColor: '#ffffff',
   },
-  text: {
-    fontSize: 24,
+  textStyle: {
     fontFamily: 'regular-font',
+    fontSize: 24,
     textAlign: 'center',
   },
   taskDesText: {
     fontSize: 20,
     fontFamily: 'regular-font',
   },
-  circleButton: {
-    flex: 1,
-    borderRadius: 10,
-    margin: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 2,
-  }
 });

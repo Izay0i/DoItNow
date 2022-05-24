@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { View } from 'react-native';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { View, Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -7,6 +7,7 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { Provider } from 'react-redux';
 import { store, persistor } from './assets/redux/store';
 import { PersistGate } from 'redux-persist/es/integration/react';
+import { CHANNEL_ID, CHANNEL_NAME } from './assets/constants/app-constants';
 
 import 'react-native-gesture-handler';
 
@@ -34,13 +35,25 @@ const Tab = createBottomTabNavigator();
 
 export default function App() {
   useEffect(() => {
+    const setNotificationChannel = async () => {
+      if (Platform.OS === 'android') {
+        Notifications.setNotificationChannelAsync(CHANNEL_ID, {
+          name: CHANNEL_NAME,
+          importance: Notifications.AndroidImportance.MAX,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: '#ff231f7c',
+        });
+      }
+    };
+    setNotificationChannel();
+
     const prepare = async () => {
       try {
         await SplashScreen.preventAutoHideAsync();
         await Font.loadAsync({
           'bold-font': require('./assets/fonts/Roboto/Roboto-Bold.ttf'),
           'regular-font': require('./assets/fonts/Roboto/Roboto-Regular.ttf'),
-          'highlight-font': require('./assets/fonts/Permanent_Marker/PermanentMarker-Regular.ttf'),
+          'header-font': require('./assets/fonts/Permanent_Marker/PermanentMarker-Regular.ttf'),
         });
       }
       catch (e) {
@@ -49,8 +62,7 @@ export default function App() {
       finally {
         setAppIsReady(true);
       }
-    }
-
+    };
     prepare();
 
     WebBrowser.warmUpAsync();
@@ -62,11 +74,15 @@ export default function App() {
 
   const [appIsReady, setAppIsReady] = useState(false);
 
+  const notificationListener = useRef();
+
   const onLayoutRootView = useCallback(async () => {
     if (appIsReady) {
       await SplashScreen.hideAsync();
     }
   }, [appIsReady]);
+
+  const lastNotificationResponse = Notifications.useLastNotificationResponse();
 
   if (!appIsReady) {
     return null;
@@ -85,20 +101,20 @@ export default function App() {
                 },
                 headerTitleStyle: {
                   color: '#000000', 
-                  fontFamily: 'highlight-font',
+                  fontFamily: 'header-font',
                   fontSize: 32,
                 },
                 headerTitleAlign: 'center',
                 tabBarShowLabel: false,
               }}>
                 <Tab.Screen name='Schedules' component={AgendaScreen} options={{ 
-                  tabBarIcon: ({focused}) => (<Ionicons name={focused ? 'calendar' : 'calendar-outline'} size={42} color='black' />) 
+                  tabBarIcon: ({focused}) => (<Ionicons name={focused ? 'calendar' : 'calendar-outline'} size={42} color='#000000' />) 
                 }}></Tab.Screen>
                 <Tab.Screen name='Home' component={MainScreen} options={{ 
-                  tabBarIcon: ({focused}) => (<Ionicons name={focused ? 'home' : 'home-outline'} size={42} color='black' />) 
+                  tabBarIcon: ({focused}) => (<Ionicons name={focused ? 'home' : 'home-outline'} size={42} color='#000000' />) 
                 }}></Tab.Screen>
                 <Tab.Screen name='Settings' component={SettingsScreen} options={{ 
-                  tabBarIcon: ({focused}) => (<Ionicons name={focused ? 'settings' : 'settings-outline'} size={42} color='black' />) 
+                  tabBarIcon: ({focused}) => (<Ionicons name={focused ? 'settings' : 'settings-outline'} size={42} color='#000000' />) 
                 }}></Tab.Screen>
               </Tab.Navigator>
             </NavigationContainer>

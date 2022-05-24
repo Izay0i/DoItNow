@@ -6,6 +6,8 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 export const ITEM_HEIGHT = 24;
 
 const TaskListItem = ({ item, onPress, iconsVisible = true }) => {
+  const { childId, taskDone } = item.content.data;
+  
   return (
     <View style={styles.item}>
       <TouchableOpacity style={styles.body}>
@@ -14,11 +16,11 @@ const TaskListItem = ({ item, onPress, iconsVisible = true }) => {
         {iconsVisible && 
         <View style={styles.iconsBody}>
           <Ionicons 
-          name={item.taskDone ? 'checkmark-done-sharp' : 'checkmark-sharp'} 
+          name={taskDone ? 'checkmark-done-sharp' : 'checkmark-sharp'} 
           size={24} 
-          color={item.taskDone ? '#32b233' : '#000000'}
+          color={taskDone ? '#32b233' : '#000000'}
           ></Ionicons>
-          {item.childId !== '' && <Ionicons name='alert-circle' size={24} color='#ffa500'></Ionicons>}
+          {childId !== '' && <Ionicons name='alert-circle' size={24} color='#ffa500'></Ionicons>}
           {/* <Ionicons name='warning-sharp' size={24} color='#ff0000'></Ionicons> */}
         </View>}
       </TouchableOpacity>
@@ -39,6 +41,7 @@ const styles = StyleSheet.create({
   iconsBody: {
     flex: 1,
     flexDirection: 'row',
+    alignItems: 'center',
   },
   item: {
     flex: 1,
@@ -49,7 +52,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     backgroundColor: '#ffffff',
-    elevation: 2,
   },
   text: {
     fontFamily: 'regular-font',

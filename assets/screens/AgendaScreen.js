@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useMemo } from 'react';
+import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 import { View, StyleSheet, Text, FlatList } from 'react-native';
 import { BottomSheetModal, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 import { Calendar } from 'react-native-calendars';
@@ -8,7 +8,14 @@ import { generateDescription } from '../functions/helper-functions';
 
 import TaskListItem from '../components/TaskListItem';
 
-export default function AgendaScreen({ navigation }) {
+export default function AgendaScreen({ navigation }) {  
+  useEffect(() => {
+    const today = new Date();
+    const todayStr = `${today.getUTCFullYear()}-${('0' + (today.getMonth() + 1)).slice(-2)}-${today.getDate()}`;
+    setToday(todayStr);
+  }, []);
+  
+  const [today, setToday] = useState('');
   const [selected, setSelected] = useState('');
   const [schedules, setSchedules] = useState([]);
   const [item, setItem] = useState([]);
@@ -45,13 +52,13 @@ export default function AgendaScreen({ navigation }) {
     <TaskListItem item={item} iconsVisible={false} onPress={() => handlePresentModalPress(item)}></TaskListItem>
   ), []);
 
-  const keyExtractor = useCallback((item) => item.id, []);
+  const keyExtractor = useCallback((item) => item.content.data.id, []);
 
   return (
     <>
       <View style={styles.body}>
         <Calendar 
-        markedDates={markedDate} 
+        markedDates={{[today]: {marked: true, dotColor: '#ffa500',}, ...markedDate}} 
         enableSwipeMonths={true} 
         onDayPress={getTasks}
         ></Calendar>
@@ -64,9 +71,9 @@ export default function AgendaScreen({ navigation }) {
           keyExtractor={keyExtractor}
           ></FlatList>
 
-          {schedules.length === 0 && 
+          {schedules.length === 0 &&  
           <View style={styles.body}>
-            <Text style={{...styles.text, color: '#999999'}}>No schedules for today</Text>
+            <Text style={{...styles.text, color: '#999999'}}>{selected === '' ? 'Select a date' : 'No schedules for this date'}</Text>
           </View>}
         </View>
       </View>

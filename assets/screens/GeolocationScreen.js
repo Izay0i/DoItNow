@@ -1,13 +1,12 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { View, StyleSheet, Dimensions, LogBox, Text, Button, TextInput, FlatList } from 'react-native';
+import { View, StyleSheet, Dimensions, Text, Button, TextInput, FlatList, TouchableOpacity } from 'react-native';
 import { LOCATION_AUTOCOMPLETE_API } from '@env';
+import MapView, { Marker } from 'react-native-maps';
 
 import * as Location from 'expo-location';
 
-import MapView, { Marker } from 'react-native-maps';
 import LocationItem from '../components/LocationItem';
-
-LogBox.ignoreAllLogs();
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 const LATITUDE_DELTA = 0.001;
 const LONGITUDE_DELTA = 0.001;
@@ -17,15 +16,20 @@ const AutocompleteDropdown = ({data, text, placeholderText, renderItem, keyExtra
 
   return (
     <View style={{position: 'absolute', width: '100%',}}>
-      <TextInput 
-      value={text} 
-      placeholder={placeholderText} 
-      maxLength={SEARCH_MAX_LENGTH} 
-      onChangeText={onChangeText} 
-      onSubmitEditing={onSubmit} 
-      style={{...styles.textInputStyle, borderBottomLeftRadius: data.length !== 0 ? 0 : 10, borderBottomRightRadius: data.length !== 0 ? 0 : 10,}}
-      ></TextInput>
-      
+      <View style={{flex: 1, flexDirection: 'row',}}>
+        <TextInput 
+        value={text} 
+        placeholder={placeholderText} 
+        maxLength={SEARCH_MAX_LENGTH} 
+        onChangeText={onChangeText} 
+        onSubmitEditing={onSubmit} 
+        style={styles.textInputStyle}
+        ></TextInput>
+        <TouchableOpacity style={styles.searchButtonStyle} onPress={onSubmit}>
+          <Ionicons name='search' size={24} color='#000000'></Ionicons>
+        </TouchableOpacity>
+      </View>
+
       {data.length !== 0 && 
       <FlatList 
       data={data} 
@@ -122,9 +126,9 @@ export default function GeolocationScreen({ navigation }) {
     <LocationItem location={item} onPress={(latitude, longitude) => setMarkerAndRegion(latitude, longitude)}></LocationItem>
   ), []);
 
-  const keyExtractor = useCallback((item) => item.place_id + item.osm_id + item.class, []);
+  const keyExtractor = useCallback((item) => `${item.place_id}-${item.osm_id}-${item.class}`, []);
 
-  const onLocationSubmit = useCallback(async () => {
+  const onLocationSubmit = async () => {
     if (locationSearch.length === 0) {
       setLocations([]);
       return;
@@ -138,7 +142,7 @@ export default function GeolocationScreen({ navigation }) {
     locations.json().then(data => {
       setLocations(data);
     });
-  }, [locations]);
+  };
 
   const setMarkerAndRegion = (lat, lon) => {
     const latitude = Number(lat);
@@ -220,11 +224,26 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   textInputStyle: {
+    flex: 1,
     borderWidth: 2,
-    borderRadius: 10,
+    borderTopLeftRadius: 10,
+    borderBottomLeftRadius: 10,
     padding: 8,
-    margin: 8,
+    marginLeft: 8,
+    marginTop: 8,
+    marginBottom: 8,
     backgroundColor: '#ffffff',
+  },
+  searchButtonStyle: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 10,
+    marginRight: 8,
+    marginTop: 8,
+    marginBottom: 8,
+    borderTopRightRadius: 10,
+    borderBottomRightRadius: 10,
+    backgroundColor: '#999999',
   },
   textStyle: {
     fontFamily: 'regular-font',

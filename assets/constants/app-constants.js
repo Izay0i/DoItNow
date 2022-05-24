@@ -14,3 +14,8 @@ export const EXPO_WEEKDAYS_ENUM = {
   FRIDAY: 6,
   SATURDAY: 7,
 };
+
+export const MIN_DATE = new Date(1950, 0, 1);
+
+export const CHANNEL_ID = 'notification';
+export const CHANNEL_NAME = 'notification';

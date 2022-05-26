@@ -1,5 +1,8 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { View, StyleSheet, Dimensions, Text, Button, TextInput, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, Button, TextInput, FlatList, TouchableOpacity } from 'react-native';
+import { useSelector } from 'react-redux';
+import { mainStyles, lightStyles, darkStyles } from '../themes/GeolocationScreen.themes';
+import { COLORS_ENUM } from '../constants/color-constants';
 import { LOCATION_AUTOCOMPLETE_API } from '@env';
 import MapView, { Marker } from 'react-native-maps';
 
@@ -12,21 +15,24 @@ const LATITUDE_DELTA = 0.001;
 const LONGITUDE_DELTA = 0.001;
 
 const AutocompleteDropdown = ({data, text, placeholderText, renderItem, keyExtractor, onChangeText, onSubmit}) => {
+  const { theme } = useSelector(state => state.themeReducer);
+  
   const SEARCH_MAX_LENGTH = 200;
 
   return (
-    <View style={{position: 'absolute', width: '100%',}}>
-      <View style={{flex: 1, flexDirection: 'row',}}>
+    <View style={mainStyles.body}>
+      <View style={mainStyles.searchBody}>
         <TextInput 
         value={text} 
         placeholder={placeholderText} 
+        placeholderTextColor={COLORS_ENUM.GRAY} 
         maxLength={SEARCH_MAX_LENGTH} 
         onChangeText={onChangeText} 
         onSubmitEditing={onSubmit} 
-        style={styles.textInputStyle}
+        style={theme === 'light' ? lightStyles.textInputBody : darkStyles.textInputBody}
         ></TextInput>
-        <TouchableOpacity style={styles.searchButtonStyle} onPress={onSubmit}>
-          <Ionicons name='search' size={24} color='#000000'></Ionicons>
+        <TouchableOpacity onPress={onSubmit} style={mainStyles.searchButton}>
+          <Ionicons name='search' size={24} color={COLORS_ENUM.BLACK}></Ionicons>
         </TouchableOpacity>
       </View>
 
@@ -36,7 +42,7 @@ const AutocompleteDropdown = ({data, text, placeholderText, renderItem, keyExtra
       extraData={data} 
       renderItem={renderItem} 
       keyExtractor={keyExtractor} 
-      style={{position: 'absolute', width: '100%', maxHeight: '50%', top: 55}}
+      style={mainStyles.listBody}
       ></FlatList>}
     </View>
   );
@@ -78,6 +84,8 @@ export default function GeolocationScreen({ navigation }) {
   const [initialRegion, setInitialRegion] = useState(null);
   const [region, setRegion] = useState(null);
   const [hasPermission, setHasPermission] = useState(false);
+
+  const { theme } = useSelector(state => state.themeReducer);
 
   const mapViewRef = useRef(null);
   const markerRef = useRef(null);
@@ -122,11 +130,11 @@ export default function GeolocationScreen({ navigation }) {
     setLocationName(locationName);
   }, [locationName]);
 
-  const renderItem = useCallback(({ item }) => (
-    <LocationItem location={item} onPress={(latitude, longitude) => setMarkerAndRegion(latitude, longitude)}></LocationItem>
-  ), []);
-
   const keyExtractor = useCallback((item) => `${item.place_id}-${item.osm_id}-${item.class}`, []);
+
+  const renderItem = ({ item }) => (
+    <LocationItem location={item} onPress={(latitude, longitude) => setMarkerAndRegion(latitude, longitude)}></LocationItem>
+  );
 
   const onLocationSubmit = async () => {
     if (locationSearch.length === 0) {
@@ -176,10 +184,10 @@ export default function GeolocationScreen({ navigation }) {
   }
 
   return (
-    <View style={styles.body}>
+    <View style={theme === 'light' ? lightStyles.secondaryBody : darkStyles.secondaryBody}>
       <MapView 
       ref={mapViewRef} 
-      style={styles.mapBody} 
+      style={mainStyles.mapBody} 
       initialRegion={initialRegion} 
       region={region} onPress={onMapPress} 
       onRegionChangeComplete={onRegionChangeComplete}>
@@ -196,58 +204,10 @@ export default function GeolocationScreen({ navigation }) {
       onSubmit={onLocationSubmit}
       ></AutocompleteDropdown>
 
-      <View style={styles.controlsBody}>
-        <Text style={styles.textStyle}>Current location: {locationName}</Text>
+      <View style={theme === 'light' ? lightStyles.buttonsBody : darkStyles.buttonsBody}>
+        <Text style={theme === 'light' ? lightStyles.text : darkStyles.text}>Current location: {locationName}</Text>
         <Button title='Set location' onPress={navigateBack}></Button>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  body: {
-    flex: 1,
-  },
-  mapBody: {
-    flex: 4,
-    width: Dimensions.get('screen').width,
-    height: Dimensions.get('screen').height,
-  },
-  controlsBody: {
-    flex: 1,
-    margin: 6,
-    padding: 10,
-    borderWidth: 2,
-    borderRadius: 10,
-    borderColor: '#999999',
-    backgroundColor: '#ffffff',
-    justifyContent: 'space-between',
-  },
-  textInputStyle: {
-    flex: 1,
-    borderWidth: 2,
-    borderTopLeftRadius: 10,
-    borderBottomLeftRadius: 10,
-    padding: 8,
-    marginLeft: 8,
-    marginTop: 8,
-    marginBottom: 8,
-    backgroundColor: '#ffffff',
-  },
-  searchButtonStyle: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 10,
-    marginRight: 8,
-    marginTop: 8,
-    marginBottom: 8,
-    borderTopRightRadius: 10,
-    borderBottomRightRadius: 10,
-    backgroundColor: '#999999',
-  },
-  textStyle: {
-    fontFamily: 'regular-font',
-    fontSize: 16,
-    textAlign: 'left',
-  }
-});

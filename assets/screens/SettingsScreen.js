@@ -1,6 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Image } from 'react-native';
+import React, { useState, useEffect, useMemo } from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { setTheme } from '../redux/actions';
 import { ANDROID_CLIENT_ID, EXPO_CLIENT_ID, USER_INFO_API } from '@env';
+import { mainStyles, lightStyles, darkStyles } from '../themes/SettingsScreen.themes';
+import { COLORS_ENUM } from '../constants/color-constants';
 
 import * as Google from 'expo-auth-session/providers/google';
 
@@ -9,14 +13,22 @@ import ItemPicker from '../components/ItemPicker';
 
 const IconButton = ({ onPress, iconName, title, backgroundColor }) => {
   return (
-    <TouchableOpacity onPress={onPress} style={{backgroundColor, ...styles.iconButton}}>
-      <Ionicons name={iconName} size={28} color='#ffffff'></Ionicons>
-      <Text style={styles.iconText}>{title}</Text>
+    <TouchableOpacity onPress={onPress} style={{backgroundColor, ...mainStyles.iconButton}}>
+      <Ionicons name={iconName} size={28} color={COLORS_ENUM.WHITE}></Ionicons>
+      <Text style={lightStyles.iconText}>{title}</Text>
     </TouchableOpacity>
   );
 };
 
 export default function SettingsScreen({ navigation }) {
+  useEffect(() => {
+    setMessage(JSON.stringify(response));
+
+    if (response?.type == 'success') {
+      setAccessToken(response.authentication.accessToken);
+    }
+  }, [response]);
+  
   const [accessToken, setAccessToken] = useState();
   const [userInfo, setUserInfo] = useState();
   const [message, setMessage] = useState();
@@ -26,104 +38,44 @@ export default function SettingsScreen({ navigation }) {
     expoClientId: EXPO_CLIENT_ID,
   });
 
-  useEffect(() => {
-    setMessage(JSON.stringify(response));
+  const items = useMemo(() => [
+    { label: 'Light', value: 'light' },
+    { label: 'Dark', value: 'dark' },
+  ], []);
 
-    if (response?.type == 'success') {
-      setAccessToken(response.authentication.accessToken);
-    }
-  }, [response]);
+  const { theme } = useSelector(state => state.themeReducer);
+  const dispatch = useDispatch();
 
-  async function getUserData() {
+  const getUserData = async () => {
     let userInfoResponse = await fetch(USER_INFO_API, {
       headers: { Authorization: `Bearer ${accessToken}` }
     });
 
     userInfoResponse.json().then(data => {
       setUserInfo(data);
-      
       console.log(data);
     });
-  }
+  };
 
-  function showUserInfo() {
-    if (userInfo) {
-      return (
-        <View>
-          <Text style={styles.title}>Welcome {userInfo.name}!</Text>
-          <Image source={{uri: userInfo.picture}} style={{width: 100, height: 100}}></Image>
-        </View>
-      );
-    }
-  }
-  
-  const items = [
-    { label: 'Light', value: true },
-    { label: 'Dark', value: false },
-    { label: 'Auto', value: null },
-  ];
+  const onChangeTheme = (item) => {
+    dispatch(setTheme(item.value));
+  };
 
   return (
-    <View style={styles.body}>
-      <View style={styles.buttonsContainer}>
-        {showUserInfo()}
-
+    <View style={theme === 'light' ? lightStyles.body : darkStyles.body}>
+      {/* <View style={mainStyles.buttonsBody}>
         <IconButton 
         iconName='logo-google' 
         title={accessToken ? 'SYNC DATA' : 'SIGN IN WITH GOOGLE'} 
-        backgroundColor='#db4437' 
+        backgroundColor={theme === 'light' ? COLORS_ENUM.GOOGLE_RED : COLORS_ENUM.DARK_RED} 
         onPress={accessToken ? getUserData : () => { promptAsync({useProxy: true}); }}
         ></IconButton>
-
-        {/* <IconButton iconName='enter-outline' title='IMPORT DATA' backgroundColor='#0f9d58' onPress={() => {}}></IconButton>
-
-        <IconButton iconName='exit-outline' title='EXPORT DATA' backgroundColor='#4285f4' onPress={() => {}}></IconButton> */}
-      </View>
-
-      {/* <View style={styles.accessibilityContainer}>
-        <Text style={{fontFamily: 'bold-font'}}>THEMES</Text>
-
-        <ItemPicker itemList={items} onPress={(item) => console.log(item)}></ItemPicker>
       </View> */}
+
+      <View style={mainStyles.accessibilityBody}>
+        <Text style={theme === 'light' ? lightStyles.text : darkStyles.text}>THEMES</Text>
+        <ItemPicker itemList={items} defaultValue={theme} onPress={(item) => onChangeTheme(item)} isDarkMode={theme !== 'light'}></ItemPicker>
+      </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  body: {
-    flex: 1,
-    padding: 10,
-  },
-  buttonsContainer: {
-    flex: 1,
-    alignItems: 'stretch',
-    justifyContent: 'center',
-  },
-  accessibilityContainer: {
-    flex: 1,
-    alignItems: 'flex-start',
-  },
-  title: {
-    marginTop: 16,
-    paddingVertical: 8,
-    textAlign: 'center',
-    fontSize: 30,
-    fontWeight: 'bold',
-    fontFamily: 'regular-font',
-    color: 'black',
-  },
-  iconButton: {
-    flexDirection: 'row',
-    borderRadius: 6,
-    padding: 10,
-    marginVertical: 12,
-  },
-  iconText: {
-    flex: 1,
-    paddingHorizontal: 10,
-    textAlign: 'center',
-    fontSize: 20,
-    fontFamily: 'bold-font',
-    color: 'white',
-  }
-});

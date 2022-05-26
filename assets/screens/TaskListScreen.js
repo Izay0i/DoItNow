@@ -1,10 +1,12 @@
 import React, { useState, useCallback, useMemo, useRef } from 'react';
-import { View, StyleSheet, FlatList, TouchableOpacity, Text, TextInput } from 'react-native';
+import { View, StyleSheet, FlatList, TouchableOpacity, Text } from 'react-native';
 import { BottomSheetModal, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 import { useDispatch, useSelector } from 'react-redux';
 import { deleteTask, markTaskAsDone } from '../redux/actions';
 import { unsubscribeLocalNotificationAsync } from '../functions/async-notification-functions';
 import { generateDescription } from '../functions/helper-functions';
+import { mainStyles, lightStyles, darkStyles } from '../themes/TaskListScreen.themes';
+import { COLORS_ENUM } from '../constants/color-constants';
 import TaskListItem, { ITEM_HEIGHT } from '../components/TaskListItem';
 
 import TransparentTextButton from '../components/TransparentTextButton';
@@ -13,7 +15,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 const CircleButton = ({ onPress, iconName, backgroundColor }) => {
   return (
     <TouchableOpacity onPress={onPress} style={{backgroundColor, ...styles.circleButton}}>
-      <Ionicons name={iconName} size={24} color='#ffffff'></Ionicons>
+      <Ionicons name={iconName} size={24} color={COLORS_ENUM.WHITE}></Ionicons>
     </TouchableOpacity>
   );
 };
@@ -22,6 +24,7 @@ export default function TaskListScreen({ navigation }) {
   const [item, setItem] = useState({});
 
   const { tasks } = useSelector(state => state.tasksReducer);
+  const { theme } = useSelector(state => state.themeReducer);
 
   const dispatch = useDispatch();
 
@@ -29,16 +32,10 @@ export default function TaskListScreen({ navigation }) {
 
   const snapPoints = useMemo(() => ['85%'], []);
 
-  const handlePresentModalPress = useCallback((item) => {
+  const handlePresentModalPress = useCallback((item) => () => {
     bottomSheetModalRef.current?.present();
     setItem(item);
-
-    //console.log(item);
   }, []);
-
-  const renderItem = useCallback(({ item }) => (
-    <TaskListItem item={item} onPress={() => handlePresentModalPress(item)}></TaskListItem>
-  ), []);
 
   const keyExtractor = useCallback((item) => item.content.data.id, []);
 
@@ -51,6 +48,10 @@ export default function TaskListScreen({ navigation }) {
   const backdropComponent = useCallback((backdropProps) => (
     <BottomSheetBackdrop {...backdropProps} appearsOnIndex={0} disappearsOnIndex={-1}></BottomSheetBackdrop>
   ), []);
+
+  const renderItem = ({ item }) => (
+    <TaskListItem item={item} onPress={handlePresentModalPress(item)}></TaskListItem>
+  );
 
   const editTask = () => {
     navigation.navigate('TaskEditor', {item});
@@ -73,8 +74,8 @@ export default function TaskListScreen({ navigation }) {
 
   return (
     <>
-      <View style={styles.body}>
-        <View style={styles.body}>
+      <View style={theme === 'light' ? lightStyles.body : darkStyles.body}>
+        <View style={mainStyles.listBody}>
           <FlatList 
           data={tasks} 
           renderItem={renderItem} 
@@ -85,20 +86,20 @@ export default function TaskListScreen({ navigation }) {
 
           {tasks.length === 0 && 
           <View style={{flex: 1,}}>
-            <Text style={{...styles.text, color: '#999999',}}>Get started by pressing the button below</Text>
+            <Text style={mainStyles.text}>Get started by pressing the button below</Text>
           </View>}
         </View>
 
-        <View style={styles.buttonsContainer}>
+        <View style={theme === 'light' ? lightStyles.buttonsBody : darkStyles.buttonsBody}>
           <CircleButton 
           iconName='search-outline' 
-          backgroundColor='#4285f4' 
+          backgroundColor={theme === 'light' ? COLORS_ENUM.BLUE : COLORS_ENUM.DARK_BLUE} 
           onPress={() => navigation.navigate('TaskSearch')}
           ></CircleButton>
 
           <CircleButton 
           iconName='add-outline' 
-          backgroundColor='#ffa500' 
+          backgroundColor={theme === 'light' ? COLORS_ENUM.ORANGE : COLORS_ENUM.DARK_ORANGE} 
           onPress={() => navigation.navigate('TaskEditor')}
           ></CircleButton>
         </View>
@@ -109,27 +110,31 @@ export default function TaskListScreen({ navigation }) {
       snapPoints={snapPoints} 
       backdropComponent={backdropComponent}
       >
-        <View style={styles.modalViewContainer}>
-          <View style={{flex: 2, padding: 16,}}>
-            <Text style={styles.taskDesText}>{generateDescription(item)}</Text>
+        <View style={theme === 'light' ? lightStyles.modalBody : darkStyles.modalBody}>
+          <View style={theme === 'light' ? lightStyles.descriptionBody : darkStyles.descriptionBody}>
+            <Text style={theme === 'light' ? lightStyles.taskDesText : darkStyles.taskDesText}>{generateDescription(item)}</Text>
           </View>
 
           <View style={{flex: 1,}}>
             <TransparentTextButton 
             text='Mark As Done' 
-            textColor={item.content?.data?.taskDone ? '#999999' : '#007aff'} 
+            textColor={item.content?.data?.taskDone ? COLORS_ENUM.GRAY : COLORS_ENUM.DARK_BLUE} 
             onPress={markTaskAsDoneAsync} 
             disabled={item.content?.data?.taskDone}
             ></TransparentTextButton>
 
             <TransparentTextButton 
             text='Edit Task' 
-            textColor={item.content?.data?.taskDone ? '#999999' : '#007aff'} 
+            textColor={item.content?.data?.taskDone ? COLORS_ENUM.GRAY : COLORS_ENUM.DARK_BLUE} 
             onPress={editTask} 
             disabled={item.content?.data?.taskDone}
             ></TransparentTextButton>
             
-            <TransparentTextButton text='Delete Task' textColor='#ff0000' onPress={deleteTaskAsync}></TransparentTextButton>
+            <TransparentTextButton 
+            text='Delete Task' 
+            textColor={theme === 'light' ? COLORS_ENUM.RED : COLORS_ENUM.DARK_RED} 
+            onPress={deleteTaskAsync}
+            ></TransparentTextButton>
           </View>
         </View>
       </BottomSheetModal>
@@ -138,33 +143,6 @@ export default function TaskListScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  body: {
-    flex: 4,
-  },
-  buttonsContainer: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  modalViewContainer: {
-    flex: 1,
-    justifyContent: 'space-evenly',
-  },
-  title: {
-    fontSize: 24,
-    paddingHorizontal: 18,
-    fontWeight: 'bold',
-    fontFamily: 'regular-font',
-    color: '#000000',
-  },
-  text: {
-    fontSize: 24,
-    fontFamily: 'regular-font',
-    textAlign: 'center',
-  },
-  taskDesText: {
-    fontSize: 20,
-    fontFamily: 'regular-font',
-  },
   circleButton: {
     flex: 1,
     borderRadius: 10,

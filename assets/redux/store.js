@@ -2,7 +2,7 @@ import { createStore, combineReducers, applyMiddleware } from 'redux';
 import { persistStore, persistReducer } from 'redux-persist';
 
 import thunk from 'redux-thunk';
-import tasksReducer from './reducers';
+import { tasksReducer, themeReducer } from './reducers';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const persistConfig = {
@@ -11,7 +11,7 @@ const persistConfig = {
   writeFailHandler: (err) => console.err(err),
 }
 
-const rootReducer = combineReducers({tasksReducer});
+const rootReducer = combineReducers({tasksReducer, themeReducer});
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = createStore(persistedReducer, applyMiddleware(thunk));

@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 
 import DropDownPicker from 'react-native-dropdown-picker';
 
-export default function ItemPicker({ itemList, onPress }) {
+export default function ItemPicker({ itemList, defaultValue, onPress, isDarkMode = false }) {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(null);
+  const [value, setValue] = useState(defaultValue);
   const [items, setItems] = useState(itemList);
 
   return (
@@ -16,8 +16,9 @@ export default function ItemPicker({ itemList, onPress }) {
     setValue={setValue} 
     setItems={setItems} 
     onSelectItem={(item) => onPress(item)} 
-    style={{elevation: 2, borderWidth: 0,}} 
-    textStyle={{fontFamily: 'regular-font',}}
+    style={{borderWidth: 0,}} 
+    textStyle={{fontFamily: 'regular-font',}} 
+    theme={isDarkMode ? 'DARK' : 'LIGHT'}
     ></DropDownPicker>
   );
 }

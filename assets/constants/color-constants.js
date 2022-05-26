@@ -1,0 +1,16 @@
+export const COLORS_ENUM = {
+  WHITE: '#ffffff',
+  BLACK: '#000000',
+  GRAY: '#8c92a2',
+  DARK_GRAY: '#292d3e',
+  ORANGE: '#ffa500',
+  DARK_ORANGE: '#ff8c00',
+  RED: '#ff0000',
+  DARK_RED: '#a40000',
+  GREEN: '#0f9d58',
+  VIBRANT_GREEN: '#32b233',
+  BLUE: '#4285f4',
+  DARK_BLUE: '#007aff',
+  GOOGLE_RED: '#db4437',
+  BACKGROUND: '#f2f2f2',
+};

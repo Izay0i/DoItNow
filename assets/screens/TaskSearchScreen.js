@@ -1,10 +1,13 @@
 import React, { useState, useCallback, useRef, useMemo } from "react";
-import { View, Keyboard, StyleSheet, Text, TextInput, TouchableWithoutFeedback, FlatList } from 'react-native';
+import { View, Keyboard, Text, TextInput, TouchableWithoutFeedback, FlatList } from 'react-native';
 import { BottomSheetModal, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 import { useDispatch, useSelector } from "react-redux";
 import { deleteTask, markTaskAsDone } from '../redux/actions';
 import { unsubscribeLocalNotificationAsync } from '../functions/async-notification-functions';
 import { generateDescription, getTaskByTitle } from "../functions/helper-functions";
+import { mainStyles, lightStyles, darkStyles } from "../themes/TaskListScreen.themes";
+import { lightStyles as searchLightStyles, darkStyles as searchDarkStyles } from "../themes/TaskSearchScreen.themes";
+import { COLORS_ENUM } from "../constants/color-constants";
 import TaskListItem, { ITEM_HEIGHT } from "../components/TaskListItem";
 
 import TransparentTextButton from "../components/TransparentTextButton";
@@ -20,12 +23,9 @@ export default function TaskSearchScreen({ navigation }) {
   const [item, setItem] = useState({});
 
   const { tasks } = useSelector(state => state.tasksReducer);
+  const { theme } = useSelector(state => state.themeReducer);
 
   const dispatch = useDispatch();
-
-  const renderItem = useCallback(({ item }) => (
-    <TaskListItem item={item} onPress={() => handlePresentModalPress(item)}></TaskListItem>
-  ), []);
 
   const keyExtractor = useCallback((item) => item.content.data.id, []);
 
@@ -39,7 +39,7 @@ export default function TaskSearchScreen({ navigation }) {
 
   const snapPoints = useMemo(() => ['85%'], []);
 
-  const handlePresentModalPress = useCallback((item) => {
+  const handlePresentModalPress = useCallback((item) => () => {
     bottomSheetModalRef.current?.present();
     setItem(item);
   }, []);
@@ -47,6 +47,10 @@ export default function TaskSearchScreen({ navigation }) {
   const backdropComponent = useCallback((backdropProps) => (
     <BottomSheetBackdrop {...backdropProps} appearsOnIndex={0} disappearsOnIndex={-1}></BottomSheetBackdrop>
   ), []);
+
+  const renderItem = ({ item }) => (
+    <TaskListItem item={item} onPress={handlePresentModalPress(item)}></TaskListItem>
+  );
 
   const getByTitle = (e) => {
     const { text } = e.nativeEvent;
@@ -86,18 +90,19 @@ export default function TaskSearchScreen({ navigation }) {
   return (
     <>
       <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-        <View style={styles.body}>
+        <View style={theme === 'light' ? lightStyles.body : darkStyles.body}>
           <TextInput 
           onChangeText={setName} 
           value={name} 
           placeholder='Title' 
-          style={styles.textInputStyle} 
+          placeholderTextColor={COLORS_ENUM.GRAY} 
+          style={theme === 'light' ? searchLightStyles.textInputBody : searchDarkStyles.textInputBody} 
           maxLength={maxCharacters} 
           onChange={(e) => getByTitle(e)} 
           onSubmitEditing={(e) => getByTitle(e)}
           ></TextInput>
 
-          <View style={styles.body}>
+          <View style={mainStyles.listBody}>
             <FlatList 
             data={tasksSearched} 
             extraData={tasksSearched} 
@@ -108,7 +113,7 @@ export default function TaskSearchScreen({ navigation }) {
 
             {tasksSearched.length === 0 && 
             <View style={{flex: 1,}}>
-              <Text style={{...styles.textStyle, color: '#999999'}}>{displayText}</Text>
+              <Text style={mainStyles.text}>{displayText}</Text>
             </View>}
           </View>
         </View>
@@ -118,55 +123,34 @@ export default function TaskSearchScreen({ navigation }) {
       ref={bottomSheetModalRef} 
       snapPoints={snapPoints} 
       backdropComponent={backdropComponent}>
-        <View style={styles.modalViewContainer}>
-          <View style={{flex: 2, padding: 16,}}>
-            <Text style={styles.taskDesText}>{generateDescription(item)}</Text>
+        <View style={theme === 'light' ? lightStyles.modalBody : darkStyles.modalBody}>
+          <View style={theme === 'light' ? lightStyles.descriptionBody : darkStyles.descriptionBody}>
+            <Text style={theme === 'light' ? lightStyles.taskDesText : darkStyles.taskDesText}>{generateDescription(item)}</Text>
           </View>
 
           <View style={{flex: 1,}}>
-            <TransparentTextButton 
+          <TransparentTextButton 
             text='Mark As Done' 
-            textColor={item.content?.data?.taskDone ? '#999999' : '#007aff'} 
+            textColor={item.content?.data?.taskDone ? COLORS_ENUM.GRAY : COLORS_ENUM.DARK_BLUE} 
             onPress={markTaskAsDoneAsync} 
             disabled={item.content?.data?.taskDone}
             ></TransparentTextButton>
 
             <TransparentTextButton 
             text='Edit Task' 
-            textColor={item.content?.data?.taskDone ? '#999999' : '#007aff'} 
+            textColor={item.content?.data?.taskDone ? COLORS_ENUM.GRAY : COLORS_ENUM.DARK_BLUE} 
             onPress={editTask} 
             disabled={item.content?.data?.taskDone}
             ></TransparentTextButton>
             
-            <TransparentTextButton text='Delete Task' textColor='#ff0000' onPress={deleteTaskAsync}></TransparentTextButton>
+            <TransparentTextButton 
+            text='Delete Task' 
+            textColor={theme === 'light' ? COLORS_ENUM.RED : COLORS_ENUM.DARK_RED} 
+            onPress={deleteTaskAsync}
+            ></TransparentTextButton>
           </View>
         </View>
       </BottomSheetModal>
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  body: {
-    flex: 1,
-  },
-  modalViewContainer: {
-    flex: 1,
-    justifyContent: 'space-evenly',
-  },
-  textInputStyle: {
-    fontFamily: 'regular-font',
-    padding: 16,
-    marginBottom: 4,
-    backgroundColor: '#ffffff',
-  },
-  textStyle: {
-    fontFamily: 'regular-font',
-    fontSize: 24,
-    textAlign: 'center',
-  },
-  taskDesText: {
-    fontSize: 20,
-    fontFamily: 'regular-font',
-  },
-});

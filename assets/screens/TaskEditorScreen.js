@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, ScrollView, StyleSheet, Keyboard, Text, TextInput, Modal, Button, Switch, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
+import { View, ScrollView, Keyboard, Text, TextInput, Modal, Button, Switch, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addTask, deleteTask } from '../redux/actions';
 import { subscribeLocalNotificationAsync, unsubscribeLocalNotificationAsync } from '../functions/async-notification-functions';
+import { mainStyles, lightStyles, darkStyles } from '../themes/TaskEditorScreen.themes';
+import { COLORS_ENUM } from '../constants/color-constants';
 import { MODES_ENUM, EXPO_WEEKDAYS_ENUM, MIN_DATE, CHANNEL_ID } from '../constants/app-constants';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -18,11 +20,16 @@ const DismissKeyboard = ({ children }) => {
   );
 };
 
-const IconTextButton = ({ onPress, title, iconName, color = '#ffffff', disabled = false }) => {
+const IconTextButton = ({ onPress, title, iconName, color = COLORS_ENUM.WHITE, disabled = false }) => {
+  const { theme } = useSelector(state => state.themeReducer);
+
   return (
-    <TouchableOpacity onPress={onPress} style={{backgroundColor: disabled ? '#999999' : color, ...styles.iconTextButton}} disabled={disabled}>
-      <Ionicons name={iconName} size={24} color='#000000'></Ionicons>
-      <Text style={styles.iconTextButtonText}>{title}</Text>
+    <TouchableOpacity 
+    onPress={onPress} 
+    style={{backgroundColor: disabled ? COLORS_ENUM.GRAY : color, ...mainStyles.iconTextButton}} 
+    disabled={disabled}>
+      <Ionicons name={iconName} size={24} color={COLORS_ENUM.WHITE}></Ionicons>
+      <Text style={theme === 'light' ? lightStyles.iconTextButtonText : darkStyles.iconTextButtonText}>{title}</Text>
     </TouchableOpacity>
   );
 };
@@ -99,6 +106,8 @@ export default function TaskEditorScreen({ route, navigation }) {
   const [show, setShow] = useState(false);
 
   const [locationName, setLocationName] = useState('Pick a location');
+
+  const { theme } = useSelector(state => state.themeReducer);
 
   const toggleSwitch = () => setIsUrgent(previousState => !previousState);
 
@@ -201,13 +210,7 @@ export default function TaskEditorScreen({ route, navigation }) {
     const todayInMS = Date.now();
     const difference = scheduledDateInMS - todayInMS;
     const diffInSeconds = Math.floor(difference / 1000);
-    const interval = diffInSeconds / 3; 
-
-    // console.log('[SCHEDULED TIMESTAMP]', scheduledDateInMS);
-    // console.log('[TODAY TIMESTAMP]', todayInMS);
-    // console.log('[DIFF]', difference);
-    // console.log('[DIFF IN SEC]', diffInSeconds);
-    // console.log('[IN 1/3 SEC]', interval);
+    const interval = diffInSeconds / 3;
 
     const trigger = {
       channelId: CHANNEL_ID,
@@ -267,7 +270,7 @@ export default function TaskEditorScreen({ route, navigation }) {
 
   return (
     <DismissKeyboard>
-      <ScrollView nestedScrollEnabled={true} contentContainerStyle={styles.body}>
+      <ScrollView nestedScrollEnabled={true} contentContainerStyle={theme === 'light' ? lightStyles.body : darkStyles.body}>
         <Modal 
         animationType='fade' 
         transparent={true} 
@@ -275,21 +278,22 @@ export default function TaskEditorScreen({ route, navigation }) {
         onRequestClose={() => setValidatorModalVisible(!validatorModalVisible)}
         >
           <BlurView tint='dark' style={{flex: 1,}}>
-            <View style={styles.centeredModalBody}>
-              <View style={styles.modalBody}>
-                <Text style={{textAlign: 'center', ...styles.text}}>{generateWarningText()}</Text>
+            <View style={mainStyles.centeredModalBody}>
+              <View style={theme === 'light' ? lightStyles.modalBody : darkStyles.modalBody}>
+                <Text style={theme === 'light' ? lightStyles.modalText : darkStyles.modalText}>{generateWarningText()}</Text>
                 <Button title='Dismiss' onPress={() => setValidatorModalVisible(!validatorModalVisible)}></Button>
               </View>
             </View>
           </BlurView>
         </Modal>
 
-        <View style={styles.inputsBody}>
+        <View style={{flex: 1,}}>
           <TextInput 
           onChangeText={setTitle} 
           value={title} 
           placeholder='Title' 
-          style={styles.textInputStyle} 
+          placeholderTextColor={COLORS_ENUM.GRAY} 
+          style={theme === 'light' ? lightStyles.textInputBody : darkStyles.textInputBody} 
           maxLength={maxCharacters}
           ></TextInput>
 
@@ -297,13 +301,14 @@ export default function TaskEditorScreen({ route, navigation }) {
           onChangeText={setDescription} 
           value={description} 
           placeholder='Description' 
-          style={styles.textInputStyle} 
+          placeholderTextColor={COLORS_ENUM.GRAY} 
+          style={theme === 'light' ? lightStyles.textInputBody : darkStyles.textInputBody} 
           maxLength={maxCharacters}
           ></TextInput>
 
-          <View style={{flex: 1, flexDirection: 'row',}}>
-            <View style={styles.modePickerBody}>
-              <Text style={styles.text}>Mode</Text>
+          <View style={mainStyles.dropDownsBody}>
+            <View style={mainStyles.modePickerBody}>
+              <Text style={theme === 'light' ? lightStyles.text : darkStyles.text}>Mode</Text>
 
               <DropDownPicker 
               open={open} 
@@ -317,12 +322,13 @@ export default function TaskEditorScreen({ route, navigation }) {
               onOpen={onModeOpen}  
               style={{borderWidth: 0,}} 
               textStyle={{fontFamily: 'regular-font',}} 
-              listMode='SCROLLVIEW'
+              listMode='SCROLLVIEW' 
+              theme={theme === 'light' ? 'LIGHT' : 'DARK'}
               ></DropDownPicker>
             </View>
 
-            <View style={styles.dayPickerBody}>
-              <Text style={styles.text}>Day</Text>
+            <View style={mainStyles.dayPickerBody}>
+              <Text style={theme === 'light' ? lightStyles.text : darkStyles.text}>Day</Text>
 
               <DropDownPicker 
               open={openDays} 
@@ -335,43 +341,60 @@ export default function TaskEditorScreen({ route, navigation }) {
               onChangeValue={(value) => setDay(value)}
               onOpen={onDayOpen}  
               disabled={mode !== MODES_ENUM.WEEKLY} 
-              style={{borderWidth: 0, backgroundColor: mode !== MODES_ENUM.WEEKLY ? '#999999' : '#ffffff'}} 
+              style={{borderWidth: 0, backgroundColor: mode !== MODES_ENUM.WEEKLY ? COLORS_ENUM.GRAY : (theme === 'light' ? COLORS_ENUM.WHITE : COLORS_ENUM.DARK_GRAY)}} 
               textStyle={{fontFamily: 'regular-font',}} 
-              listMode='SCROLLVIEW'
+              listMode='SCROLLVIEW' 
+              theme={theme === 'light' ? 'LIGHT' : 'DARK'}
               ></DropDownPicker>
             </View>
           </View>
         </View>
 
-        <View style={styles.timePickerBody}>
+        <View style={mainStyles.timePickerBody}>
           <IconTextButton 
           onPress={showDatePicker} 
           title={date.toLocaleDateString()} 
           iconName='calendar-sharp' 
+          color={theme === 'light' ? COLORS_ENUM.WHITE : COLORS_ENUM.DARK_GRAY} 
           disabled={mode === MODES_ENUM.DAILY || mode === MODES_ENUM.WEEKLY}
           ></IconTextButton>
 
-          <IconTextButton onPress={showTimePicker} title={date.toLocaleTimeString()} iconName='time'></IconTextButton>
+          <IconTextButton 
+          onPress={showTimePicker} 
+          title={date.toLocaleTimeString()} 
+          iconName='time' 
+          color={theme === 'light' ? COLORS_ENUM.WHITE : COLORS_ENUM.DARK_GRAY}></IconTextButton>
 
-          <IconTextButton onPress={() => navigation.navigate('Geolocation')} title={locationName} iconName='location-sharp'></IconTextButton>
+          <IconTextButton 
+          onPress={() => navigation.navigate('Geolocation')} 
+          title={locationName} 
+          iconName='location-sharp'
+          color={theme === 'light' ? COLORS_ENUM.WHITE : COLORS_ENUM.DARK_GRAY}></IconTextButton>
 
-          <View style={styles.switchBody}>
-            <View style={{flex: 1, flexDirection: 'row',}}>
-              <Text style={styles.text}>Will repeat</Text>
+          <View style={mainStyles.switchBody}>
+            <View style={mainStyles.toggleBody}>
+              <Text style={theme === 'light' ? lightStyles.text : darkStyles.text}>Will repeat</Text>
               <Ionicons 
               name={mode === MODES_ENUM.DATE_TIME ? 'close' : 'checkmark'} 
               size={24} 
-              color={mode === MODES_ENUM.DATE_TIME ? '#ff0000' : '#32b233'}
+              color={mode === MODES_ENUM.DATE_TIME ? 
+              (theme === 'light' ? COLORS_ENUM.RED : COLORS_ENUM.DARK_RED) : 
+              (theme === 'light' ? COLORS_ENUM.VIBRANT_GREEN : COLORS_ENUM.GREEN)}
               ></Ionicons>
             </View>
             
-            <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',}}>
-              <Text style={styles.text}>Toggle urgent mode</Text>
+            <View style={mainStyles.switchBody}>
+              <Text style={theme === 'light' ? lightStyles.text : darkStyles.text}>Toggle urgent mode</Text>
               <Switch onValueChange={toggleSwitch} value={isUrgent} disabled={mode !== MODES_ENUM.DATE_TIME}></Switch>
             </View>
           </View>
 
-          <IconTextButton onPress={modifyTaskAsync} title={routeData ? 'Edit Task' : 'Add Task'} iconName='cube' color='#ffa500'></IconTextButton>
+          <IconTextButton 
+          onPress={modifyTaskAsync} 
+          title={routeData ? 'Edit Task' : 'Add Task'} 
+          iconName='cube' 
+          color={theme === 'light' ? COLORS_ENUM.ORANGE : COLORS_ENUM.DARK_ORANGE}
+          ></IconTextButton>
 
           {show && 
           <DateTimePicker 
@@ -387,72 +410,3 @@ export default function TaskEditorScreen({ route, navigation }) {
     </DismissKeyboard>
   );
 }
-
-const styles = StyleSheet.create({
-  body: {
-    flex: 1,
-  },
-  centeredModalBody: {
-    flex: 1,
-    marginTop: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  modalBody: {
-    margin: 32,
-    padding: 32,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderRadius: 10,
-    backgroundColor: '#ffffff',
-    shadowColor: '#000000',
-    elevation: 4,
-  },
-  inputsBody: {
-    flex: 1,
-  },
-  modePickerBody: {
-    flex: 1,
-    padding: 8,
-  },
-  dayPickerBody: {
-    flex: 1,
-    padding: 8,
-  },
-  timePickerBody: {
-    flex: 2,
-    zIndex: 0,
-  },
-  switchBody: {
-    flex: 1,
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  textInputStyle: {
-    fontFamily: 'regular-font',
-    padding: 16,
-    marginBottom: 4,
-    backgroundColor: '#ffffff',
-  },
-  iconTextButton: {
-    flex: 1,
-    flexDirection: 'row',
-    marginHorizontal: 8,
-    marginVertical: 4,
-    padding: 22,
-    alignItems: 'center',
-    borderRadius: 10,
-  },
-  text: {
-    fontFamily: 'regular-font',
-    fontSize: 16,
-  },
-  iconTextButtonText: {
-    flex: 1,
-    fontFamily: 'regular-font',
-    fontSize: 14,
-    textAlign: 'center',
-  }
-});

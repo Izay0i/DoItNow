@@ -1,10 +1,12 @@
 import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react';
-import { View, StyleSheet, Text, FlatList } from 'react-native';
+import { View, Text, FlatList } from 'react-native';
 import { BottomSheetModal, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 import { Calendar } from 'react-native-calendars';
 import { useSelector } from 'react-redux';
 import { getTasksByDate } from '../functions/helper-functions';
 import { generateDescription } from '../functions/helper-functions';
+import { mainStyles, lightStyles, darkStyles } from '../themes/AgendaScreen.themes';
+import { COLORS_ENUM } from '../constants/color-constants';
 
 import TaskListItem from '../components/TaskListItem';
 
@@ -21,6 +23,7 @@ export default function AgendaScreen({ navigation }) {
   const [item, setItem] = useState([]);
 
   const { tasks } = useSelector(state => state.tasksReducer);
+  const { theme } = useSelector(state => state.themeReducer);
 
   const markedDate = useMemo(() => {
     return {
@@ -34,7 +37,7 @@ export default function AgendaScreen({ navigation }) {
 
   const snapPoints = useMemo(() => ['60%'], []);
 
-  const handlePresentModalPress = useCallback((item) => {
+  const handlePresentModalPress = useCallback((item) => () => {
     bottomSheetModalRef.current?.present();
     setItem(item);
   }, []);
@@ -48,22 +51,24 @@ export default function AgendaScreen({ navigation }) {
     setSchedules(getTasksByDate(tasks, day));
   }, [schedules]);
 
-  const renderItem = useCallback(({ item }) => (
-    <TaskListItem item={item} iconsVisible={false} onPress={() => handlePresentModalPress(item)}></TaskListItem>
-  ), []);
-
   const keyExtractor = useCallback((item) => item.content.data.id, []);
+
+  const renderItem = ({ item }) => (
+    <TaskListItem item={item} iconsVisible={false} onPress={handlePresentModalPress(item)}></TaskListItem>
+  );
 
   return (
     <>
-      <View style={styles.body}>
+      <View style={theme === 'light' ? lightStyles.body : darkStyles.body}>
         <Calendar 
-        markedDates={{[today]: {marked: true, dotColor: '#ffa500',}, ...markedDate}} 
+        key={theme === 'light'} 
+        markedDates={{[today]: {marked: true, dotColor: COLORS_ENUM.ORANGE,}, ...markedDate}} 
         enableSwipeMonths={true} 
-        onDayPress={getTasks}
+        onDayPress={getTasks} 
+        theme={theme === 'light' ? lightStyles.calendar : darkStyles.calendar}
         ></Calendar>
 
-        <View style={styles.body}>
+        <View style={theme === 'light' ? lightStyles.body : darkStyles.body}>
           <FlatList 
           data={schedules} 
           extraData={schedules} 
@@ -72,8 +77,8 @@ export default function AgendaScreen({ navigation }) {
           ></FlatList>
 
           {schedules.length === 0 &&  
-          <View style={styles.body}>
-            <Text style={{...styles.text, color: '#999999'}}>{selected === '' ? 'Select a date' : 'No schedules for this date'}</Text>
+          <View style={theme === 'light' ? lightStyles.body : darkStyles.body}>
+            <Text style={darkStyles.text}>{selected === '' ? 'Select a date' : 'No schedules for this date'}</Text>
           </View>}
         </View>
       </View>
@@ -83,21 +88,10 @@ export default function AgendaScreen({ navigation }) {
       snapPoints={snapPoints} 
       backdropComponent={backdropComponent}
       >
-       <View style={{flex: 1, padding: 16,}}>
-         <Text style={{...styles.text, fontSize: 20, textAlign: 'left',}}>{generateDescription(item)}</Text>
+       <View style={theme === 'light' ? lightStyles.modalBody : darkStyles.modalBody}>
+         <Text style={theme === 'light' ? lightStyles.descriptionText : darkStyles.descriptionText}>{generateDescription(item)}</Text>
        </View> 
       </BottomSheetModal>
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  body: {
-    flex: 1,
-  },
-  text: {
-    fontFamily: 'regular-font',
-    fontSize: 24,
-    textAlign: 'center',
-  },
-});

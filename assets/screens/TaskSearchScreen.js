@@ -10,13 +10,14 @@ import { lightStyles as searchLightStyles, darkStyles as searchDarkStyles } from
 import { COLORS_ENUM } from "../constants/color-constants";
 import TaskListItem, { ITEM_HEIGHT } from "../components/TaskListItem";
 
+import i18n from 'i18n-js';
 import TransparentTextButton from "../components/TransparentTextButton";
 
 export default function TaskSearchScreen({ navigation }) {
   const [name, setName] = useState('');
   const [maxCharacters, setMaxCharacters] = useState(64);
 
-  const [displayText, setDisplayText] = useState('Start searching');
+  const [displayText, setDisplayText] = useState(i18n.t('searchStartMessage'));
 
   const [tasksSearched, setTasksSearched] = useState([]);
 
@@ -55,13 +56,13 @@ export default function TaskSearchScreen({ navigation }) {
   const getByTitle = (e) => {
     const { text } = e.nativeEvent;
     if (text.length === 0) {
-      setDisplayText('Start searching');
+      setDisplayText(i18n.t('searchStartMessage'));
       setTasksSearched([]);
     }
     else {
       setTasksSearched(getTaskByTitle(tasks, text));
       if (tasksSearched.length === 0) {
-        setDisplayText('Results not found');
+        setDisplayText(i18n.t('searchNoDataMessage'));
       }
     }
   };
@@ -94,7 +95,7 @@ export default function TaskSearchScreen({ navigation }) {
           <TextInput 
           onChangeText={setName} 
           value={name} 
-          placeholder='Title' 
+          placeholder={i18n.t('searchInputPlaceholder')} 
           placeholderTextColor={COLORS_ENUM.GRAY} 
           style={theme === 'light' ? searchLightStyles.textInputBody : searchDarkStyles.textInputBody} 
           maxLength={maxCharacters} 
@@ -130,21 +131,21 @@ export default function TaskSearchScreen({ navigation }) {
 
           <View style={{flex: 1,}}>
           <TransparentTextButton 
-            text='Mark As Done' 
+            text={i18n.t('bottomSheetMarkTask')} 
             textColor={item.content?.data?.taskDone ? COLORS_ENUM.GRAY : COLORS_ENUM.DARK_BLUE} 
             onPress={markTaskAsDoneAsync} 
             disabled={item.content?.data?.taskDone}
             ></TransparentTextButton>
 
             <TransparentTextButton 
-            text='Edit Task' 
+            text={i18n.t('bottomSheetEditTask')} 
             textColor={item.content?.data?.taskDone ? COLORS_ENUM.GRAY : COLORS_ENUM.DARK_BLUE} 
             onPress={editTask} 
             disabled={item.content?.data?.taskDone}
             ></TransparentTextButton>
             
             <TransparentTextButton 
-            text='Delete Task' 
+            text={i18n.t('bottomSheetDeleteTask')} 
             textColor={theme === 'light' ? COLORS_ENUM.RED : COLORS_ENUM.DARK_RED} 
             onPress={deleteTaskAsync}
             ></TransparentTextButton>

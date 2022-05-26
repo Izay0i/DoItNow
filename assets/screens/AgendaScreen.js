@@ -5,9 +5,10 @@ import { Calendar } from 'react-native-calendars';
 import { useSelector } from 'react-redux';
 import { getTasksByDate } from '../functions/helper-functions';
 import { generateDescription } from '../functions/helper-functions';
-import { mainStyles, lightStyles, darkStyles } from '../themes/AgendaScreen.themes';
+import { lightStyles, darkStyles } from '../themes/AgendaScreen.themes';
 import { COLORS_ENUM } from '../constants/color-constants';
 
+import i18n from 'i18n-js';
 import TaskListItem from '../components/TaskListItem';
 
 export default function AgendaScreen({ navigation }) {  
@@ -78,7 +79,7 @@ export default function AgendaScreen({ navigation }) {
 
           {schedules.length === 0 &&  
           <View style={theme === 'light' ? lightStyles.body : darkStyles.body}>
-            <Text style={darkStyles.text}>{selected === '' ? 'Select a date' : 'No schedules for this date'}</Text>
+            <Text style={darkStyles.text}>{i18n.t(selected === '' ? 'schedulesSelectMessage' : 'schedulesNoDataMessage')}</Text>
           </View>}
         </View>
       </View>

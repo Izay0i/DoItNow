@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { useSelector } from 'react-redux';
 import { mainStyles, lightStyles, darkStyles } from '../themes/TaskListItem.themes';
 import { COLORS_ENUM } from '../constants/color-constants';
@@ -29,7 +29,7 @@ const TaskListItem = ({ item, onPress, iconsVisible = true }) => {
           ></Ionicons>
           
           {childId !== '' && 
-          <Ionicons name='alert-circle' size={24} color={COLORS_ENUM.ORANGE}></Ionicons>}
+          <Ionicons name='alert-circle' size={24} color={theme === 'light' ? COLORS_ENUM.ORANGE : COLORS_ENUM.DARK_ORANGE}></Ionicons>}
         </View>}
       </TouchableOpacity>
 
@@ -45,29 +45,3 @@ const TaskListItem = ({ item, onPress, iconsVisible = true }) => {
 }
 
 export default memo(TaskListItem);
-
-const styles = StyleSheet.create({
-  body: {
-    flex: 1,
-  },
-  iconsBody: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  item: {
-    flex: 1,
-    borderRadius: 8,
-    padding: 16,
-    marginVertical: 8,
-    marginHorizontal: 12,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    backgroundColor: '#ffffff',
-  },
-  text: {
-    fontFamily: 'regular-font',
-    fontSize: 20,
-    marginRight: 8,
-  }
-});

@@ -8,6 +8,7 @@ import MapView, { Marker } from 'react-native-maps';
 
 import * as Location from 'expo-location';
 
+import i18n from 'i18n-js';
 import LocationItem from '../components/LocationItem';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
@@ -197,7 +198,7 @@ export default function GeolocationScreen({ navigation }) {
       <AutocompleteDropdown 
       data={locations} 
       text={locationSearch} 
-      placeholderText='Search location...' 
+      placeholderText={i18n.t('locationInputPlaceholder')} 
       renderItem={renderItem} 
       keyExtractor={keyExtractor} 
       onChangeText={setLocationSearch} 
@@ -205,8 +206,8 @@ export default function GeolocationScreen({ navigation }) {
       ></AutocompleteDropdown>
 
       <View style={theme === 'light' ? lightStyles.buttonsBody : darkStyles.buttonsBody}>
-        <Text style={theme === 'light' ? lightStyles.text : darkStyles.text}>Current location: {locationName}</Text>
-        <Button title='Set location' onPress={navigateBack}></Button>
+        <Text style={theme === 'light' ? lightStyles.text : darkStyles.text}>{`${i18n.t('locationCurrentLocationTitle')}: ${locationName}`}</Text>
+        <Button title={i18n.t('locationSetLocation')} onPress={navigateBack}></Button>
       </View>
     </View>
   );

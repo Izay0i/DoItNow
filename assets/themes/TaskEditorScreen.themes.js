@@ -1,4 +1,4 @@
-import { StyleSheet, Dimensions } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { COLORS_ENUM } from '../constants/color-constants';
 
 export const mainStyles = StyleSheet.create({
@@ -99,7 +99,7 @@ export const darkStyles = StyleSheet.create({
     justifyContent: 'space-between',
     borderRadius: 10,
     backgroundColor: COLORS_ENUM.BLACK,
-    shadowColor: COLORS_ENUM.WHITE,
+    shadowColor: COLORS_ENUM.DARK_BLUE,
     elevation: 4,
   },
   textInputBody: {

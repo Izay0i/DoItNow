@@ -18,7 +18,8 @@ export default function ItemPicker({ itemList, defaultValue, onPress, isDarkMode
     onSelectItem={(item) => onPress(item)} 
     style={{borderWidth: 0,}} 
     textStyle={{fontFamily: 'regular-font',}} 
-    theme={isDarkMode ? 'DARK' : 'LIGHT'}
+    theme={isDarkMode ? 'DARK' : 'LIGHT'} 
+    listMode='SCROLLVIEW'
     ></DropDownPicker>
   );
 }

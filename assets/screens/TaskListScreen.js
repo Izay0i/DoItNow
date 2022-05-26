@@ -9,6 +9,7 @@ import { mainStyles, lightStyles, darkStyles } from '../themes/TaskListScreen.th
 import { COLORS_ENUM } from '../constants/color-constants';
 import TaskListItem, { ITEM_HEIGHT } from '../components/TaskListItem';
 
+import i18n from 'i18n-js';
 import TransparentTextButton from '../components/TransparentTextButton';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
@@ -86,7 +87,7 @@ export default function TaskListScreen({ navigation }) {
 
           {tasks.length === 0 && 
           <View style={{flex: 1,}}>
-            <Text style={mainStyles.text}>Get started by pressing the button below</Text>
+            <Text style={mainStyles.text}>{i18n.t('homeStartMessage')}</Text>
           </View>}
         </View>
 
@@ -117,21 +118,21 @@ export default function TaskListScreen({ navigation }) {
 
           <View style={{flex: 1,}}>
             <TransparentTextButton 
-            text='Mark As Done' 
+            text={i18n.t('bottomSheetMarkTask')} 
             textColor={item.content?.data?.taskDone ? COLORS_ENUM.GRAY : COLORS_ENUM.DARK_BLUE} 
             onPress={markTaskAsDoneAsync} 
             disabled={item.content?.data?.taskDone}
             ></TransparentTextButton>
 
             <TransparentTextButton 
-            text='Edit Task' 
+            text={i18n.t('bottomSheetEditTask')} 
             textColor={item.content?.data?.taskDone ? COLORS_ENUM.GRAY : COLORS_ENUM.DARK_BLUE} 
             onPress={editTask} 
             disabled={item.content?.data?.taskDone}
             ></TransparentTextButton>
             
             <TransparentTextButton 
-            text='Delete Task' 
+            text={i18n.t('bottomSheetDeleteTask')} 
             textColor={theme === 'light' ? COLORS_ENUM.RED : COLORS_ENUM.DARK_RED} 
             onPress={deleteTaskAsync}
             ></TransparentTextButton>
@@ -150,5 +151,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 2,
-  }
+  },
 });

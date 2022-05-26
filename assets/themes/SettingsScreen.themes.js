@@ -12,6 +12,11 @@ export const mainStyles = StyleSheet.create({
     alignItems: 'flex-start',
     justifyContent: 'center',
   },
+  languagesBody: {
+    flex: 1,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+  },
   iconButton: {
     flexDirection: 'row',
     borderRadius: 6,
@@ -36,6 +41,7 @@ export const lightStyles = StyleSheet.create({
   },
   text: {
     fontFamily: 'bold-font',
+    fontSize: 18,
     color: COLORS_ENUM.BLACK,
   },
 });
@@ -56,6 +62,7 @@ export const darkStyles = StyleSheet.create({
   },
   text: {
     fontFamily: 'bold-font',
+    fontSize: 18,
     color: COLORS_ENUM.GRAY,
   },
 });

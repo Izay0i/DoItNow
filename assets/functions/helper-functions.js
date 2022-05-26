@@ -1,28 +1,30 @@
 import { MODES_ENUM, EXPO_WEEKDAYS_ENUM } from "../constants/app-constants";
 
+import i18n from 'i18n-js';
+
 export const convertNumberToExpoWeekdayStr = (dayNumber) => {
   switch (dayNumber) {
     //にちようび
     case EXPO_WEEKDAYS_ENUM.SUNDAY:
-      return 'Sunday ';
+      return i18n.t('sunday');
     //げつようび
     case EXPO_WEEKDAYS_ENUM.MONDAY:
-      return 'Monday ';
+      return i18n.t('monday');
     //かようび
     case EXPO_WEEKDAYS_ENUM.TUESDAY:
-      return 'Tuesday ';
+      return i18n.t('tuesday');
     //すいようび
     case EXPO_WEEKDAYS_ENUM.WEDNESDAY:
-      return 'Wednesday ';
+      return i18n.t('wednesday');
     //もくようび
     case EXPO_WEEKDAYS_ENUM.THURSDAY:
-      return 'Thursday ';
+      return i18n.t('thursday');
     //きんようび
     case EXPO_WEEKDAYS_ENUM.FRIDAY:
-      return 'Friday ';
+      return i18n.t('friday');
     //どようび
     case EXPO_WEEKDAYS_ENUM.SATURDAY:
-      return 'Saturday ';
+      return i18n.t('saturday');
     default:
       return '';
     }
@@ -42,26 +44,26 @@ export const generateDescription = (item) => {
 
   switch (mode) {
     case MODES_ENUM.DATE_TIME:
-      description += 'Triggers on ' + trigger?.dateStr;
+      description += `${i18n.t('triggersOn')} ` + trigger?.dateStr;
       break;
     case MODES_ENUM.YEARLY:
       description += trigger?.day + '/' + trigger?.month + ' ';
     case MODES_ENUM.WEEKLY:
-      description += convertNumberToExpoWeekdayStr(trigger?.weekday);
+      description += convertNumberToExpoWeekdayStr(trigger?.weekday) + ' ';
     case MODES_ENUM.DAILY:
       description += trigger?.hour + ':' + trigger?.minute;
-      description = 'Triggers on every ' + description;
+      description = `${i18n.t('triggersOnEvery')} ` + description;
       break;
   }
 
-  description = `Title: ${title}\nDescription: ${body}\n\n` + description;
+  description = `${i18n.t('title')}: ${title}\n${i18n.t('description')}: ${body}\n\n` + description;
 
   if (childId !== '') {
-    description = '[URGENT]\n' + description;
+    description = `${i18n.t('urgent')}\n` + description;
   }
 
   if (location !== '') {
-    description += `\nAt ${location}`;
+    description += `\n${i18n.t('atLocation')} ${location}`;
   }
   return description;
 };

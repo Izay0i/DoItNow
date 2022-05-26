@@ -1,13 +1,12 @@
 import { StyleSheet } from 'react-native';
 import { COLORS_ENUM } from '../constants/color-constants';
 
-export const mainStyles = StyleSheet.create({
-  
-});
+export const mainStyles = StyleSheet.create({});
 
 export const lightStyles = StyleSheet.create({
   header: {
     backgroundColor: COLORS_ENUM.WHITE,
+    shadowColor: COLORS_ENUM.BLACK,
   },
   tabBar: {
     backgroundColor: COLORS_ENUM.WHITE,
@@ -22,6 +21,7 @@ export const lightStyles = StyleSheet.create({
 export const darkStyles = StyleSheet.create({
   header: {
     backgroundColor: COLORS_ENUM.BLACK,
+    shadowColor: COLORS_ENUM.GRAY,
   },
   tabBar: {
     backgroundColor: COLORS_ENUM.BLACK,

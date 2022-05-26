@@ -8,6 +8,7 @@ import { mainStyles, lightStyles, darkStyles } from '../themes/TaskEditorScreen.
 import { COLORS_ENUM } from '../constants/color-constants';
 import { MODES_ENUM, EXPO_WEEKDAYS_ENUM, MIN_DATE, CHANNEL_ID } from '../constants/app-constants';
 
+import i18n from 'i18n-js';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -28,7 +29,7 @@ const IconTextButton = ({ onPress, title, iconName, color = COLORS_ENUM.WHITE, d
     onPress={onPress} 
     style={{backgroundColor: disabled ? COLORS_ENUM.GRAY : color, ...mainStyles.iconTextButton}} 
     disabled={disabled}>
-      <Ionicons name={iconName} size={24} color={COLORS_ENUM.WHITE}></Ionicons>
+      <Ionicons name={iconName} size={24} color={theme === 'light' ? COLORS_ENUM.BLACK : COLORS_ENUM.WHITE}></Ionicons>
       <Text style={theme === 'light' ? lightStyles.iconTextButtonText : darkStyles.iconTextButtonText}>{title}</Text>
     </TouchableOpacity>
   );
@@ -75,22 +76,22 @@ export default function TaskEditorScreen({ route, navigation }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(MODES_ENUM.DATE_TIME);
   const [items, setItems] = useState([
-    { label: 'Date & time', value: MODES_ENUM.DATE_TIME, },
-    { label: 'Daily', value: MODES_ENUM.DAILY, },
-    { label: 'Weekly', value: MODES_ENUM.WEEKLY, },
-    { label: 'Yearly', value: MODES_ENUM.YEARLY, },
+    { label: i18n.t('editorModeOptionDatetime'), value: MODES_ENUM.DATE_TIME, },
+    { label: i18n.t('editorModeOptionDaily'), value: MODES_ENUM.DAILY, },
+    { label: i18n.t('editorModeOptionWeekly'), value: MODES_ENUM.WEEKLY, },
+    { label: i18n.t('editorModeOptionYearly'), value: MODES_ENUM.YEARLY, },
   ]);
 
   const [openDays, setOpenDays] = useState(false);
   const [dayValue, setDayValue] = useState(EXPO_WEEKDAYS_ENUM.SUNDAY);
   const [days, setDays] = useState([
-    { label: 'Sunday', value: EXPO_WEEKDAYS_ENUM.SUNDAY, },
-    { label: 'Monday', value: EXPO_WEEKDAYS_ENUM.MONDAY, },
-    { label: 'Tuesday', value: EXPO_WEEKDAYS_ENUM.TUESDAY, },
-    { label: 'Wednesday', value: EXPO_WEEKDAYS_ENUM.WEDNESDAY, },
-    { label: 'Thursday', value: EXPO_WEEKDAYS_ENUM.THURSDAY, },
-    { label: 'Friday', value: EXPO_WEEKDAYS_ENUM.FRIDAY, },
-    { label: 'Saturday', value: EXPO_WEEKDAYS_ENUM.SATURDAY, },
+    { label: i18n.t('sunday'), value: EXPO_WEEKDAYS_ENUM.SUNDAY, },
+    { label: i18n.t('monday'), value: EXPO_WEEKDAYS_ENUM.MONDAY, },
+    { label: i18n.t('tuesday'), value: EXPO_WEEKDAYS_ENUM.TUESDAY, },
+    { label: i18n.t('wednesday'), value: EXPO_WEEKDAYS_ENUM.WEDNESDAY, },
+    { label: i18n.t('thursday'), value: EXPO_WEEKDAYS_ENUM.THURSDAY, },
+    { label: i18n.t('friday'), value: EXPO_WEEKDAYS_ENUM.FRIDAY, },
+    { label: i18n.t('saturday'), value: EXPO_WEEKDAYS_ENUM.SATURDAY, },
   ]);
 
   const [mode, setMode] = useState(MODES_ENUM.DATE_TIME);
@@ -105,7 +106,7 @@ export default function TaskEditorScreen({ route, navigation }) {
   const [timeMode, setTimeMode] = useState('date');
   const [show, setShow] = useState(false);
 
-  const [locationName, setLocationName] = useState('Pick a location');
+  const [locationName, setLocationName] = useState(i18n.t('editorLocationStartMessage'));
 
   const { theme } = useSelector(state => state.themeReducer);
 
@@ -142,18 +143,18 @@ export default function TaskEditorScreen({ route, navigation }) {
 
   const generateWarningText = () => {
     if (title.length < minCharacters) {
-      return `Title length must be in the range of (${minCharacters} - ${maxCharacters})`;
+      return `${i18n.t('editorTitleErrorMessage')} (${minCharacters} - ${maxCharacters})`;
     }
 
     if (description.length < minCharacters) {
-      return `Description length must be in the range of (${minCharacters} - ${maxCharacters})`;
+      return `${i18n.t('editorDescErrorMessage')} (${minCharacters} - ${maxCharacters})`;
     }
 
     const timeSet = date.setSeconds(0);
     const timeFiveMinLater = Date.now() + 300 * 1000;
 
     if (isUrgent && timeSet - timeFiveMinLater <= 0) {
-      return 'Notification should be set at least 3 days in advance';
+      return i18n.t('editorUrgentErrorMessage');
     }
 
     return '';
@@ -201,8 +202,8 @@ export default function TaskEditorScreen({ route, navigation }) {
     }
 
     const content = {
-      title: `[ALERT] Upcoming task: ${title}`,
-      body: `On ${trig.dateStr}`,
+      title: `${i18n.t('editorAlertNotificationMessage')}: ${title}`,
+      body: `${i18n.t('editorAlertNotificationOnMessage')}} ${trig.dateStr}`,
     };
 
     //1/3 of the duration of the parent notification
@@ -243,7 +244,7 @@ export default function TaskEditorScreen({ route, navigation }) {
         id: await subscribeLocalNotificationAsync(notificationBody, trigger),
         childId: await createFrequentReminder(trigger),
         mode,
-        location: locationName !== 'Pick a location' ? locationName: '',
+        location: locationName !== i18n.t('editorLocationStartMessage') ? locationName: '',
         taskDone: false,
         notificationDate: date.valueOf(),
         createdAt: Date.now(),
@@ -281,7 +282,7 @@ export default function TaskEditorScreen({ route, navigation }) {
             <View style={mainStyles.centeredModalBody}>
               <View style={theme === 'light' ? lightStyles.modalBody : darkStyles.modalBody}>
                 <Text style={theme === 'light' ? lightStyles.modalText : darkStyles.modalText}>{generateWarningText()}</Text>
-                <Button title='Dismiss' onPress={() => setValidatorModalVisible(!validatorModalVisible)}></Button>
+                <Button title={i18n.t('editorDismiss')} onPress={() => setValidatorModalVisible(!validatorModalVisible)}></Button>
               </View>
             </View>
           </BlurView>
@@ -291,7 +292,7 @@ export default function TaskEditorScreen({ route, navigation }) {
           <TextInput 
           onChangeText={setTitle} 
           value={title} 
-          placeholder='Title' 
+          placeholder={i18n.t('editorTitleInputPlaceholder')} 
           placeholderTextColor={COLORS_ENUM.GRAY} 
           style={theme === 'light' ? lightStyles.textInputBody : darkStyles.textInputBody} 
           maxLength={maxCharacters}
@@ -300,7 +301,7 @@ export default function TaskEditorScreen({ route, navigation }) {
           <TextInput 
           onChangeText={setDescription} 
           value={description} 
-          placeholder='Description' 
+          placeholder={i18n.t('editorDescInputPlaceholder')} 
           placeholderTextColor={COLORS_ENUM.GRAY} 
           style={theme === 'light' ? lightStyles.textInputBody : darkStyles.textInputBody} 
           maxLength={maxCharacters}
@@ -308,7 +309,7 @@ export default function TaskEditorScreen({ route, navigation }) {
 
           <View style={mainStyles.dropDownsBody}>
             <View style={mainStyles.modePickerBody}>
-              <Text style={theme === 'light' ? lightStyles.text : darkStyles.text}>Mode</Text>
+              <Text style={theme === 'light' ? lightStyles.text : darkStyles.text}>{i18n.t('editorModeTitle')}</Text>
 
               <DropDownPicker 
               open={open} 
@@ -328,7 +329,7 @@ export default function TaskEditorScreen({ route, navigation }) {
             </View>
 
             <View style={mainStyles.dayPickerBody}>
-              <Text style={theme === 'light' ? lightStyles.text : darkStyles.text}>Day</Text>
+              <Text style={theme === 'light' ? lightStyles.text : darkStyles.text}>{i18n.t('editorDayTitle')}</Text>
 
               <DropDownPicker 
               open={openDays} 
@@ -373,7 +374,7 @@ export default function TaskEditorScreen({ route, navigation }) {
 
           <View style={mainStyles.switchBody}>
             <View style={mainStyles.toggleBody}>
-              <Text style={theme === 'light' ? lightStyles.text : darkStyles.text}>Will repeat</Text>
+              <Text style={theme === 'light' ? lightStyles.text : darkStyles.text}>{i18n.t('editorRepeatMessage')}</Text>
               <Ionicons 
               name={mode === MODES_ENUM.DATE_TIME ? 'close' : 'checkmark'} 
               size={24} 
@@ -384,14 +385,14 @@ export default function TaskEditorScreen({ route, navigation }) {
             </View>
             
             <View style={mainStyles.switchBody}>
-              <Text style={theme === 'light' ? lightStyles.text : darkStyles.text}>Toggle urgent mode</Text>
+              <Text style={theme === 'light' ? lightStyles.text : darkStyles.text}>{i18n.t('editorUrgentMessage')}</Text>
               <Switch onValueChange={toggleSwitch} value={isUrgent} disabled={mode !== MODES_ENUM.DATE_TIME}></Switch>
             </View>
           </View>
 
           <IconTextButton 
           onPress={modifyTaskAsync} 
-          title={routeData ? 'Edit Task' : 'Add Task'} 
+          title={i18n.t(routeData ? 'editorEditTask' : 'editorAddTask')} 
           iconName='cube' 
           color={theme === 'light' ? COLORS_ENUM.ORANGE : COLORS_ENUM.DARK_ORANGE}
           ></IconTextButton>

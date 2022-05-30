@@ -1,10 +1,10 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, Button, TextInput, FlatList, TouchableOpacity } from 'react-native';
 import { useSelector } from 'react-redux';
 import { mainStyles, lightStyles, darkStyles } from '../themes/GeolocationScreen.themes';
 import { COLORS_ENUM } from '../constants/color-constants';
-import { LOCATION_AUTOCOMPLETE_API } from '@env';
-import MapView, { Marker } from 'react-native-maps';
+import { LOCATION_AUTOCOMPLETE_API, ACCESS_TOKEN } from '../constants/app-constants';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
 import * as Location from 'expo-location';
 
@@ -91,7 +91,7 @@ export default function GeolocationScreen({ navigation }) {
   const mapViewRef = useRef(null);
   const markerRef = useRef(null);
 
-  const onMapPress = useCallback((e) => {
+  const onMapPress = (e) => {
     const { latitude, longitude } = e.nativeEvent.coordinate;
     (async () => {
       await getAddressFromCoordinate(latitude, longitude);
@@ -99,11 +99,11 @@ export default function GeolocationScreen({ navigation }) {
 
     setLocation({latitude, longitude});
     markerRef.current?.animateMarkerToCoordinate(location, 3 * 1000);
-  }, [location]);
+  };
 
-  const onRegionChangeComplete = useCallback((region) => setRegion(region), [region]);
+  const onRegionChangeComplete = (region) => setRegion(region);
 
-  const onDragEnd = useCallback((e) => {
+  const onDragEnd = (e) => {
     const { latitude, longitude } = e.nativeEvent.coordinate;
     (async () => {
       await getAddressFromCoordinate(latitude, longitude);
@@ -116,9 +116,9 @@ export default function GeolocationScreen({ navigation }) {
       longitudeDelta: LONGITUDE_DELTA
     });
     mapViewRef.current?.animateToRegion(region, 3 * 1000);
-  }, [region]);
+  };
 
-  const getAddressFromCoordinate = useCallback(async (latitude, longitude) => {
+  const getAddressFromCoordinate = async (latitude, longitude) => {
     const location = await mapViewRef.current?.addressForCoordinate({latitude, longitude});
     const locationName = [
       location.subThoroughfare, 
@@ -129,9 +129,9 @@ export default function GeolocationScreen({ navigation }) {
     .filter(str => str !== null)
     .join(' ');
     setLocationName(locationName);
-  }, [locationName]);
+  };
 
-  const keyExtractor = useCallback((item) => `${item.place_id}-${item.osm_id}-${item.class}`, []);
+  const keyExtractor = (item) => `${item.place_id}-${item.osm_id}-${item.class}`;
 
   const renderItem = ({ item }) => (
     <LocationItem location={item} onPress={(latitude, longitude) => setMarkerAndRegion(latitude, longitude)}></LocationItem>
@@ -144,7 +144,7 @@ export default function GeolocationScreen({ navigation }) {
     }
 
     const MAX_LIMIT = 10;
-    let locations = await fetch(`${LOCATION_AUTOCOMPLETE_API}&q=${locationSearch}&limit=${MAX_LIMIT}`, {
+    let locations = await fetch(`${LOCATION_AUTOCOMPLETE_API}?key=${ACCESS_TOKEN}&q=${locationSearch}&limit=${MAX_LIMIT}`, {
       method: 'GET',
     });
 
@@ -162,7 +162,7 @@ export default function GeolocationScreen({ navigation }) {
     })();
 
     setLocation({ latitude, longitude });
-    markerRef.current?.animateMarkerToCoordinate(location, 3 * 1000);
+    markerRef.current?.animateMarkerToCoordinate(location, 1 * 1000);
 
     setRegion({
       latitude,
@@ -170,7 +170,7 @@ export default function GeolocationScreen({ navigation }) {
       latitudeDelta: LATITUDE_DELTA,
       longitudeDelta: LONGITUDE_DELTA,
     });
-    mapViewRef.current?.animateToRegion(region, 3 * 1000);
+    mapViewRef.current?.animateToRegion(region, 1 * 1000);
 
     setLocationSearch('');
     setLocations([]);
@@ -187,10 +187,12 @@ export default function GeolocationScreen({ navigation }) {
   return (
     <View style={theme === 'light' ? lightStyles.secondaryBody : darkStyles.secondaryBody}>
       <MapView 
+      provider={PROVIDER_GOOGLE} 
       ref={mapViewRef} 
       style={mainStyles.mapBody} 
       initialRegion={initialRegion} 
-      region={region} onPress={onMapPress} 
+      region={region} 
+      onPress={onMapPress} 
       onRegionChangeComplete={onRegionChangeComplete}>
         <Marker ref={markerRef} draggable title={locationName} coordinate={location} onDragEnd={onDragEnd}></Marker>
       </MapView>

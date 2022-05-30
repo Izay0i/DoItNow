@@ -1,7 +1,7 @@
 # DO IT NOW
 A simple reminder mobile app
 
-![Logo](./assets/images/logo.png)
+![Logo](./assets/images/icon_1024.png)
 
 # Features
 + Add, modify and delete a task
@@ -13,7 +13,6 @@ A simple reminder mobile app
 + Android
 
 ## How to run
-Supply your own `LOCATION_AUTOCOMPLETE_API` & `ACCESS_TOKEN` in `.env` file\
 `npm install`\
 `expo start`
 

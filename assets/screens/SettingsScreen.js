@@ -1,45 +1,14 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import React, { useMemo } from 'react';
+import { View, Text } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { setTheme, setLanguage } from '../redux/actions';
-import { ANDROID_CLIENT_ID, EXPO_CLIENT_ID, USER_INFO_API } from '@env';
 import { mainStyles, lightStyles, darkStyles } from '../themes/SettingsScreen.themes';
-import { COLORS_ENUM } from '../constants/color-constants';
-
-import * as Google from 'expo-auth-session/providers/google';
 import * as Updates from 'expo-updates';
 
 import i18n from 'i18n-js';
-import Ionicons from '@expo/vector-icons/Ionicons';
 import ItemPicker from '../components/ItemPicker';
 
-const IconButton = ({ onPress, iconName, title, backgroundColor }) => {
-  return (
-    <TouchableOpacity onPress={onPress} style={{backgroundColor, ...mainStyles.iconButton}}>
-      <Ionicons name={iconName} size={28} color={COLORS_ENUM.WHITE}></Ionicons>
-      <Text style={lightStyles.iconText}>{title}</Text>
-    </TouchableOpacity>
-  );
-};
-
 export default function SettingsScreen({ navigation }) {
-  useEffect(() => {
-    setMessage(JSON.stringify(response));
-
-    if (response?.type == 'success') {
-      setAccessToken(response.authentication.accessToken);
-    }
-  }, [response]);
-  
-  const [accessToken, setAccessToken] = useState();
-  const [userInfo, setUserInfo] = useState();
-  const [message, setMessage] = useState();
-  
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    androidClientId: ANDROID_CLIENT_ID,
-    expoClientId: EXPO_CLIENT_ID,
-  });
-
   const items = useMemo(() => [
     { label: i18n.t('settingsThemesOptionLight'), value: 'light' },
     { label: i18n.t('settingsThemesOptionDark'), value: 'dark' },
@@ -56,24 +25,13 @@ export default function SettingsScreen({ navigation }) {
 
   const dispatch = useDispatch();
 
-  const getUserData = async () => {
-    let userInfoResponse = await fetch(USER_INFO_API, {
-      headers: { Authorization: `Bearer ${accessToken}` }
-    });
-
-    userInfoResponse.json().then(data => {
-      setUserInfo(data);
-      console.log(data);
-    });
-  };
-
   const onChangeTheme = (item) => {
     dispatch(setTheme(item.value));
   };
 
   const onChangeLanguage = (item) => {
     dispatch(setLanguage(item.value));
-    setTimeout(async () => await Updates.reloadAsync(), 1000);
+    setTimeout(async () => await Updates.reloadAsync(), 200);
   };
 
   return (

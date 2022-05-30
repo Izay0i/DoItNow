@@ -63,7 +63,7 @@ export const generateDescription = (item) => {
   }
 
   if (location !== '') {
-    description += `\n${i18n.t('atLocation')} ${location}`;
+    description += `\n${i18n.t('atLocation')}: ${location}`;
   }
   return description;
 };

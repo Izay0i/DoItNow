@@ -33,6 +33,7 @@ export const mainStyles = StyleSheet.create({
   toggleBody: {
     flex: 1,
     flexDirection: 'row',
+    paddingLeft: 10,
   },
   iconTextButton: {
     flex: 1,

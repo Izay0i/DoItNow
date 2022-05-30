@@ -38,7 +38,7 @@ export default function TaskListScreen({ navigation }) {
     setItem(item);
   }, []);
 
-  const keyExtractor = useCallback((item) => item.content.data.id, []);
+  const keyExtractor = useCallback((item) => item.content?.data?.id, []);
 
   const getItemLayout = useCallback((data, index) => ({
     length: ITEM_HEIGHT,

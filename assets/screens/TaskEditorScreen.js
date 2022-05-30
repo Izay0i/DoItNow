@@ -203,7 +203,7 @@ export default function TaskEditorScreen({ route, navigation }) {
 
     const content = {
       title: `${i18n.t('editorAlertNotificationMessage')}: ${title}`,
-      body: `${i18n.t('editorAlertNotificationOnMessage')}} ${trig.dateStr}`,
+      body: `${i18n.t('editorAlertNotificationOnMessage')}}: ${trig.dateStr}`,
     };
 
     //1/3 of the duration of the parent notification
@@ -385,8 +385,13 @@ export default function TaskEditorScreen({ route, navigation }) {
             </View>
             
             <View style={mainStyles.switchBody}>
-              <Text style={theme === 'light' ? lightStyles.text : darkStyles.text}>{i18n.t('editorUrgentMessage')}</Text>
-              <Switch onValueChange={toggleSwitch} value={isUrgent} disabled={mode !== MODES_ENUM.DATE_TIME}></Switch>
+              <Text style={theme === 'light' ? lightStyles.text : darkStyles.text}>{i18n.t('editorUrgentMessage')}?</Text>
+              <Switch 
+              onValueChange={toggleSwitch} 
+              value={isUrgent} 
+              disabled={mode !== MODES_ENUM.DATE_TIME} 
+              thumbColor={isUrgent ? COLORS_ENUM.VIBRANT_GREEN : COLORS_ENUM.RED} 
+              trackColor={{false: COLORS_ENUM.DARK_RED, true: COLORS_ENUM.GREEN}}></Switch>
             </View>
           </View>
 

@@ -5,11 +5,11 @@
     "version": "1.0.0",
     "scheme": "exp",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/logo.png",
     "splash": {
-      "image": "./assets/images/splash.png",
+      "image": "./assets/images/logo.png",
       "resizeMode": "contain",
-      "backgroundColor": "#000000"
+      "backgroundColor": "#ffa500"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -23,18 +23,23 @@
     "android": {
       "package": "com.doitnow",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#000000"
+        "foregroundImage": "./assets/images/logo.png",
+        "backgroundColor": "#ffa500"
       },
       "softwareKeyboardLayoutMode": "pan"
     },
     "web": {
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/logo.png"
+    },
+    "notification": {
+      "icon": "./assets/images/logo.png",
+      "color": "#ffa500"
     },
     "plugins": [
       [
         "expo-notifications", {
-          "color": "#ffffff"
+          "icon": "./assets/images/logo.png",
+          "color": "#ffa500"
         }
       ]
     ]

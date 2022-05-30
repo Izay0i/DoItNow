@@ -5,7 +5,7 @@ import { SET_LANGUAGE } from "./actions";
 const initialState = {
   tasks: [],
   theme: 'light',
-  language: 'vn',
+  language: 'en',
 };
 
 export const tasksReducer = (state = initialState, action) => {

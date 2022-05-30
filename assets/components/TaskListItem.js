@@ -11,7 +11,7 @@ export const ITEM_HEIGHT = 24;
 const TaskListItem = ({ item, onPress, iconsVisible = true }) => {
   const { theme } = useSelector(state => state.themeReducer);
 
-  const { childId, taskDone } = item.content.data;
+  const { childId, taskDone } = { ...item.content.data };
   
   return (
     <View style={theme === 'light' ? lightStyles.itemBody : darkStyles.itemBody}>

@@ -6,6 +6,7 @@ import { Provider } from 'react-redux';
 import { store, persistor } from './assets/redux/store';
 import { PersistGate } from 'redux-persist/es/integration/react';
 import { CHANNEL_ID, CHANNEL_NAME } from './assets/constants/app-constants';
+import { COLORS_ENUM } from './assets/constants/color-constants';
 
 import 'react-native-gesture-handler';
 
@@ -34,7 +35,7 @@ export default function App() {
           name: CHANNEL_NAME,
           importance: Notifications.AndroidImportance.MAX,
           vibrationPattern: [0, 250, 250, 250],
-          lightColor: '#ff231f7c',
+          lightColor: COLORS_ENUM.ORANGE,
         });
       }
     };

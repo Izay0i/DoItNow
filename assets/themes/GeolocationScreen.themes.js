@@ -6,6 +6,12 @@ export const mainStyles = StyleSheet.create({
     position: 'absolute',
     width: '100%',
   },
+  centeredModalBody: {
+    flex: 1,
+    marginTop: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   mapBody: {
     flex: 4,
     width: Dimensions.get('screen').width,
@@ -39,6 +45,16 @@ export const lightStyles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS_ENUM.BACKGROUND,
   },
+  modalBody: {
+    margin: 32,
+    padding: 32,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderRadius: 10,
+    backgroundColor: COLORS_ENUM.WHITE,
+    shadowColor: COLORS_ENUM.BLACK,
+    elevation: 4,
+  },
   buttonsBody: {
     flex: 1,
     margin: 6,
@@ -62,6 +78,12 @@ export const lightStyles = StyleSheet.create({
     color: COLORS_ENUM.BLACK,
     backgroundColor: COLORS_ENUM.WHITE,
   },
+  modalText: {
+    fontFamily: 'regular-font',
+    fontSize: 16,
+    textAlign: 'center',
+    color: COLORS_ENUM.BLACK,
+  },
   text: {
     fontFamily: 'regular-font',
     fontSize: 16,
@@ -74,6 +96,16 @@ export const darkStyles = StyleSheet.create({
   secondaryBody: {
     flex: 1,
     backgroundColor: COLORS_ENUM.BLACK,
+  },
+  modalBody: {
+    margin: 32,
+    padding: 32,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderRadius: 10,
+    backgroundColor: COLORS_ENUM.BLACK,
+    shadowColor: COLORS_ENUM.DARK_BLUE,
+    elevation: 4,
   },
   buttonsBody: {
     flex: 1,
@@ -97,6 +129,12 @@ export const darkStyles = StyleSheet.create({
     marginBottom: 8,
     color: COLORS_ENUM.WHITE,
     backgroundColor: COLORS_ENUM.DARK_GRAY,
+  },
+  modalText: {
+    fontFamily: 'regular-font',
+    fontSize: 16,
+    textAlign: 'center',
+    color: COLORS_ENUM.GRAY,
   },
   text: {
     fontFamily: 'regular-font',

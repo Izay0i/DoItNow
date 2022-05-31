@@ -40,3 +40,12 @@ export const setLanguage = language => dispatch => {
     payload: language,
   });
 };
+
+export const SET_SECRET = 'SET_SECRET';
+
+export const setSecret = secret => dispatch => {
+  dispatch({
+    type: SET_SECRET,
+    payload: secret,
+  });
+};

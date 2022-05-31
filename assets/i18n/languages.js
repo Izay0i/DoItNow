@@ -39,6 +39,7 @@ export const vn = {
   locationInputPlaceholder: 'Tìm địa điểm...',
   locationCurrentLocationTitle: 'Địa điểm hiện tại',
   locationSetLocation: 'Chọn địa điểm',
+  locationNoPermission: 'Quyền truy cập địa chỉ đã bị từ chối, vui lòng bật lại trong Cài đặt',
 
   bottomSheetMarkTask: 'Đánh dấu đã xong',
   bottomSheetEditTask: 'Sửa lịch trình',
@@ -138,6 +139,7 @@ export const en = {
   locationInputPlaceholder: 'Search location...',
   locationCurrentLocationTitle: 'Current location',
   locationSetLocation: 'Set location',
+  locationNoPermission: 'Location permission has been denied, please re-enable in Settings',
 
   bottomSheetMarkTask: 'Mark As Done',
   bottomSheetEditTask: 'Edit Task',
@@ -228,7 +230,7 @@ export const jp = {
   editorTitleErrorMessage: 'だいめいのながさは',
   editorDescErrorMessage: 'せつめいのながさは',
   editorUrgentErrorMessage: 'つうちはすくなくとも３にちまえにせっていするひつようがあります',
-  editorAlertNotificationMessage: '[アラート] こんごのタスク',
+  editorAlertNotificationMessage: '「アラート」 こんごのタスク',
   edtiorAlertNotifcationOnMessage: 'じかん',
   editorAddTask: 'タスクのついか',
   editorEditTask: 'タスクのへんしゅう',
@@ -237,6 +239,7 @@ export const jp = {
   locationInputPlaceholder: 'けんさくばしょ...',
   locationCurrentLocationTitle: 'げんざいいち',
   locationSetLocation: 'ばしょをせんたく',
+  locationNoPermission: 'ばしょのきょかがきょひされました、「セッティング」でさいどゆうこうにしてください',
 
   bottomSheetMarkTask: 'かんりょうとしてマークする',
   bottomSheetEditTask: 'タスクのへんしゅう',

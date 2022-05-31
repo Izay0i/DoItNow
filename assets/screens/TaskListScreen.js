@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo, useRef } from 'react';
-import { View, StyleSheet, FlatList, TouchableOpacity, Text } from 'react-native';
+import { View, StyleSheet, FlatList, TouchableOpacity, Text, Image } from 'react-native';
 import { BottomSheetModal, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 import { useDispatch, useSelector } from 'react-redux';
 import { deleteTask, markTaskAsDone } from '../redux/actions';
@@ -26,6 +26,7 @@ export default function TaskListScreen({ navigation }) {
 
   const { tasks } = useSelector(state => state.tasksReducer);
   const { theme } = useSelector(state => state.themeReducer);
+  const { secret } = useSelector(state => state.secretReducer);
 
   const dispatch = useDispatch();
 
@@ -88,6 +89,9 @@ export default function TaskListScreen({ navigation }) {
           {tasks.length === 0 && 
           <View style={{flex: 1,}}>
             <Text style={mainStyles.text}>{i18n.t('homeStartMessage')}</Text>
+            
+            {secret && 
+            <Image source={require('../images/jill.png')} resizeMode='contain' style={mainStyles.backgroundImageBody}></Image>}
           </View>}
         </View>
 

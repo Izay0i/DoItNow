@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "scheme": "exp",
     "orientation": "portrait",
-    "icon": "./assets/images/icon_1024.png",
+    "icon": "./assets/images/logo.png",
     "splash": {
       "image": "./assets/images/icon_splash.png",
       "resizeMode": "contain",
@@ -27,33 +27,19 @@
           "apiKey": "AIzaSyBIUpsR65dRbBfl8qJ5DzkmDr0NwdJB9XY"
         }
       },
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/icon_1024.png",
-        "backgroundColor": "#ffa500"
-      },
-      "splash": {
-        "image": "./assets/images/android/playstore-icon.png",
-        "backgroundColor": "#ffa500",
-        "resizeMode": "native",
-        "mdpi": "./assets/images/android/mipmap-mdpi/ic_launcher_foreground.png",
-        "hdpi": "./assets/images/android/mipmap-hdpi/ic_launcher_foreground.png",
-        "xhdpi": "./assets/images/android/mipmap-xhdpi/ic_launcher_foreground.png",
-        "xxhdpi": "./assets/images/android/mipmap-xxhdpi/ic_launcher_foreground.png",
-        "xxxhdpi": "./assets/images/android/mipmap-xxxhdpi/ic_launcher_foreground.png"
-      },
       "softwareKeyboardLayoutMode": "pan"
     },
     "web": {
-      "favicon": "./assets/images/icon_1024.png"
+      "favicon": "./assets/images/logo.png"
     },
     "notification": {
-      "icon": "./assets/images/icon_1024.png",
+      "icon": "./assets/images/logo.png",
       "color": "#ffa500"
     },
     "plugins": [
       [
         "expo-notifications", {
-          "icon": "./assets/images/icon_1024.png",
+          "icon": "./assets/images/logo.png",
           "color": "#ffa500"
         }
       ]

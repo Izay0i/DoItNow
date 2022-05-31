@@ -72,7 +72,7 @@ export const lightStyles = StyleSheet.create({
     fontFamily: 'regular-font',
     fontSize: 16,
     textAlign: 'center',
-    color: COLORS_ENUM.WHITE,
+    color: COLORS_ENUM.BLACK,
   },
   iconTextButtonText: {
     flex: 1,

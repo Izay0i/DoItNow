@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Button, TextInput, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, Button, TextInput, FlatList, Modal, TouchableOpacity } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { useSelector } from 'react-redux';
 import { mainStyles, lightStyles, darkStyles } from '../themes/GeolocationScreen.themes';
 import { COLORS_ENUM } from '../constants/color-constants';
@@ -55,7 +56,7 @@ export default function GeolocationScreen({ navigation }) {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         setHasPermission(false);
-        navigation.goBack();
+        //navigation.goBack();
       }
       else {
         setHasPermission(true);
@@ -186,6 +187,21 @@ export default function GeolocationScreen({ navigation }) {
 
   return (
     <View style={theme === 'light' ? lightStyles.secondaryBody : darkStyles.secondaryBody}>
+      <Modal 
+      animationType='fade' 
+      transparent={true} 
+      visible={!hasPermission} 
+      onRequestClose={() => setHasPermission(!hasPermission)}>
+        <BlurView tint='dark' style={{flex: 1,}}>
+          <View style={mainStyles.centeredModalBody}>
+            <View style={theme === 'light' ? lightStyles.modalBody : darkStyles.modalBody}>
+              <Text style={theme === 'light' ? lightStyles.modalText : darkStyles.modalText}>{i18n.t('locationNoPermission')}</Text>
+              <Button title={i18n.t('editorDismiss')} onPress={() => navigation.goBack()}></Button>
+            </View>
+          </View>
+        </BlurView>
+      </Modal>
+      
       <MapView 
       provider={PROVIDER_GOOGLE} 
       ref={mapViewRef} 

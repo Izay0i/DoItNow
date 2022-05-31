@@ -1,11 +1,13 @@
 import { ADD_TASK, DELETE_TASK, MARK_TASK_AS_DONE } from "./actions";
 import { SET_THEME } from "./actions";
 import { SET_LANGUAGE } from "./actions";
+import { SET_SECRET } from "./actions";
 
 const initialState = {
   tasks: [],
   theme: 'light',
   language: 'en',
+  secret: false,
 };
 
 export const tasksReducer = (state = initialState, action) => {
@@ -53,6 +55,15 @@ export const languageReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_LANGUAGE:
       return { ...state, language: action.payload };
+    default:
+      return state;
+  }
+};
+
+export const secretReducer = (state = initialState, action) => {
+  switch (action.type) {
+    case SET_SECRET:
+      return { ...state, secret: action.payload };
     default:
       return state;
   }

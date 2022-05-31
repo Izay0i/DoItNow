@@ -1,8 +1,10 @@
 import React, { useMemo } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Switch } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { setTheme, setLanguage } from '../redux/actions';
+import { setTheme, setLanguage, setSecret } from '../redux/actions';
 import { mainStyles, lightStyles, darkStyles } from '../themes/SettingsScreen.themes';
+import { COLORS_ENUM } from '../constants/color-constants';
+
 import * as Updates from 'expo-updates';
 
 import i18n from 'i18n-js';
@@ -22,6 +24,9 @@ export default function SettingsScreen({ navigation }) {
 
   const { theme } = useSelector(state => state.themeReducer);
   const { language } = useSelector(state => state.languageReducer);
+  const { secret } = useSelector(state => state.secretReducer);
+
+  const toggleSwitch = () => dispatch(setSecret(!secret));
 
   const dispatch = useDispatch();
 
@@ -45,6 +50,12 @@ export default function SettingsScreen({ navigation }) {
         <Text style={theme === 'light' ? lightStyles.text : darkStyles.text}>{i18n.t('settingsLanguagesTitle')}</Text>
         <ItemPicker itemList={languages} defaultValue={language} onPress={(item) => onChangeLanguage(item)} isDarkMode={theme !== 'light'}></ItemPicker>
       </View>
+
+      <Switch 
+      trackColor={{false: COLORS_ENUM.DARK_RED, true: COLORS_ENUM.GREEN}} 
+      thumbColor={secret ? COLORS_ENUM.VIBRANT_GREEN : COLORS_ENUM.RED} 
+      value={secret} 
+      onValueChange={toggleSwitch}></Switch>
     </View>
   );
 }

@@ -5,6 +5,12 @@ export const mainStyles = StyleSheet.create({
   listBody: {
     flex: 4,
   },
+  backgroundImageBody: {
+    flex: 1,
+    justifyContent: 'center',
+    width: '100%',
+    height: '100%',
+  },
   text: {
     fontFamily: 'regular-font',
     fontSize: 24,

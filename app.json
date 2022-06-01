@@ -2,10 +2,11 @@
   "expo": {
     "name": "DoItNow",
     "slug": "DoItNow",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "scheme": "exp",
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
+    "primaryColor": "#ffa500",
     "splash": {
       "image": "./assets/images/icon_splash.png",
       "resizeMode": "contain",
@@ -14,8 +15,20 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
+    "notification": {
+      "icon": "./assets/images/logo.png",
+      "color": "#ffa500"
+    },
     "assetBundlePatterns": [
       "**/*"
+    ],
+    "plugins": [
+      [
+        "expo-notifications", {
+          "icon": "./assets/images/logo.png",
+          "color": "#ffa500"
+        }
+      ]
     ],
     "ios": {
       "supportsTablet": true
@@ -31,18 +44,6 @@
     },
     "web": {
       "favicon": "./assets/images/logo.png"
-    },
-    "notification": {
-      "icon": "./assets/images/logo.png",
-      "color": "#ffa500"
-    },
-    "plugins": [
-      [
-        "expo-notifications", {
-          "icon": "./assets/images/logo.png",
-          "color": "#ffa500"
-        }
-      ]
-    ]
+    }
   }
 }

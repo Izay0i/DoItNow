@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo, useRef } from 'react';
-import { View, StyleSheet, FlatList, TouchableOpacity, Text, Image } from 'react-native';
+import { View, StyleSheet, FlatList, TouchableOpacity, Text, ImageBackground } from 'react-native';
 import { BottomSheetModal, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 import { useDispatch, useSelector } from 'react-redux';
 import { deleteTask, markTaskAsDone } from '../redux/actions';
@@ -77,24 +77,26 @@ export default function TaskListScreen({ navigation }) {
   return (
     <>
       <View style={theme === 'light' ? lightStyles.body : darkStyles.body}>
-        <View style={mainStyles.listBody}>
-          <FlatList 
-          data={tasks} 
-          renderItem={renderItem} 
-          keyExtractor={keyExtractor} 
-          extraData={tasks} 
-          getItemLayout={getItemLayout}
-          ></FlatList>
-
-          {tasks.length === 0 && 
+        <ImageBackground 
+        source={secret ? require('../images/jill.png') : require('../images/transparent.png')} 
+        resizeMode='contain' 
+        style={mainStyles.backgroundImageBody}>
           <View style={{flex: 1,}}>
-            <Text style={mainStyles.text}>{i18n.t('homeStartMessage')}</Text>
-            
-            {secret && 
-            <Image source={require('../images/jill.png')} resizeMode='contain' style={mainStyles.backgroundImageBody}></Image>}
-          </View>}
-        </View>
+            <FlatList 
+            data={tasks} 
+            renderItem={renderItem} 
+            keyExtractor={keyExtractor} 
+            extraData={tasks} 
+            getItemLayout={getItemLayout}
+            ></FlatList>
 
+            {tasks.length === 0 && 
+            <View style={{flex: 1,}}>
+              <Text style={mainStyles.text}>{i18n.t('homeStartMessage')}</Text>
+            </View>}
+          </View>
+        </ImageBackground>
+        
         <View style={theme === 'light' ? lightStyles.buttonsBody : darkStyles.buttonsBody}>
           <CircleButton 
           iconName='search-outline' 

@@ -3,10 +3,10 @@ import { COLORS_ENUM } from '../constants/color-constants';
 
 export const mainStyles = StyleSheet.create({
   listBody: {
-    flex: 4,
+    flex: 1,
   },
   backgroundImageBody: {
-    flex: 1,
+    flex: 4,
     justifyContent: 'center',
     width: '100%',
     height: '100%',
